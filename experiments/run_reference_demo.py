@@ -47,6 +47,9 @@ def main() -> None:
     parser.add_argument("--python", type=Path, required=True)
     args = parser.parse_args()
     upstream = args.upstream_root.resolve()
+    python_executable = args.python.absolute()
+    if not python_executable.exists():
+        raise SystemExit(f"Python executable does not exist: {python_executable}")
     estimate = json.loads(
         (OUTPUT / "dry_run_estimate.json").read_text(encoding="utf-8")
     )
@@ -87,7 +90,7 @@ def main() -> None:
                 command = [
                     "/usr/bin/time",
                     "-lp",
-                    str(args.python.resolve()),
+                    str(python_executable),
                     stage,
                     "--config",
                     config.name,

@@ -127,7 +127,6 @@ def main() -> None:
         )
 
     schema_rows = load_csv(CASE / "ontology_schema.csv")
-    gold_rows = load_csv(CASE / "draft_partial_gold_mapping.csv")
     try:
         import pandas as pd
     except ImportError as error:
@@ -151,29 +150,9 @@ def main() -> None:
         write_csv(source_path, source_rows)
         write_csv(target_path, target_rows)
 
-        grouped: dict[tuple[str, str], tuple[list[str], list[str]]] = {}
-        for row in gold_rows:
-            if row["source_table"] != source_table:
-                continue
-            key = (row["source_table"], row["source_column"])
-            target_tables, target_columns = grouped.setdefault(key, ([], []))
-            if row["target_object_type"]:
-                target_tables.append(row["target_object_type"])
-                target_columns.append(row["target_property"])
-        mapping_rows = [
-            {
-                "SRC_ENT": table,
-                "SRC_ATT": column,
-                "TGT_ENT": target_tables,
-                "TGT_ATT": target_columns,
-            }
-            for (table, column), (target_tables, target_columns) in sorted(
-                grouped.items()
-            )
-        ]
         mapping_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(
-            mapping_rows,
+            [],
             columns=["SRC_ENT", "SRC_ATT", "TGT_ENT", "TGT_ATT"],
         ).to_parquet(mapping_path, index=False)
         config_path = upstream / f"config_{benchmark}.toml"
@@ -197,7 +176,7 @@ def main() -> None:
         "run_id": "defense_reference_demo_schemora_gpt5_nano_v1",
         "claim": (
             "same pinned official-code adaptation as the frozen English case; "
-            "not yet executed"
+            "execution status is recorded separately in run_manifest.json"
         ),
         "official_repository": "https://github.com/schemorapaper/schemora",
         "official_commit": actual_commit,
@@ -215,10 +194,16 @@ def main() -> None:
         "model": "gpt-5-nano",
         "embedding_model": "text-embedding-3-large",
         "input_policy": {
-            "schemas": "all 27 observed/normalized fields across five ontologies",
+            "schemas": (
+                f"all {len(schema_rows)} observed/normalized fields across five "
+                "ontologies"
+            ),
             "record_values": "not passed to the primary SCHEMORA run",
             "same_ontology_candidates": "excluded by five pairwise benchmarks",
-            "gold": "partial draft; adapter smoke-test only",
+            "gold": (
+                "zero-row mapping parquet; saved-link positives are external "
+                "evaluation-only data"
+            ),
         },
         "benchmarks": prepared,
         "limitations": [

@@ -1,11 +1,12 @@
 TableName,TableDescription,ColumnName,ColumnDescription,ColumnType,Cardinality,field_name_provenance,type_provenance,sample_values_policy
-작전명령,작전명령서에서 추출된 작전 단위 정보,operation_order_id,작전명령을 식별하는 ID,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
+작전명령,작전명령서에서 추출된 작전 단위 정보,opord_id,작전명령을 식별하는 ID,string,unknown,observed_in_link_management_page,observed_in_link_management_page,not_passed_primary
 작전명령,작전명령서에서 추출된 작전 단위 정보,operation_name,작전의 고유 명칭,string,one,observed_in_link_page,inferred_from_observed_values,not_passed_primary
 작전명령,작전명령서에서 추출된 작전 단위 정보,operation_type,공격 또는 방어와 같은 작전 유형,string,one,observed_in_link_page,inferred_from_observed_values,not_passed_primary
-작전명령,작전명령서에서 추출된 작전 단위 정보,target_unit,작전을 수행하도록 지정된 대상 부대 식별자,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
+작전명령,작전명령서에서 추출된 작전 단위 정보,issued_to_unit,작전을 수행하도록 지정된 대상 부대 식별자,string,unknown,observed_in_link_management_page,observed_in_link_management_page,not_passed_primary
 작전명령,작전명령서에서 추출된 작전 단위 정보,target_terrain,작전이 확보하거나 방어해야 하는 목표 지형,string,one,observed_in_link_page,inferred_from_observed_values,not_passed_primary
-작전명령,작전명령서에서 추출된 작전 단위 정보,applicable_rule,작전명령에 적용되는 교전규칙 식별자,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
+작전명령,작전명령서에서 추출된 작전 단위 정보,applies_rule,작전명령에 적용되는 교전규칙 식별자,string,unknown,observed_in_link_management_page,observed_in_link_management_page,not_passed_primary
 작전명령,작전명령서에서 추출된 작전 단위 정보,mission,부대가 수행해야 하는 임무 문장,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
+작전명령,작전명령서에서 추출된 작전 단위 정보,deadline,작전 완료 또는 보고 기한,string,unknown,observed_in_link_management_page,observed_in_link_management_page,not_passed_primary
 아군_부대,아군 부대 Excel 추출 정보,unit_id,아군 부대를 식별하는 ID,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
 아군_부대,아군 부대 Excel 추출 정보,unit_name,아군 부대의 표시 명칭,string,unknown,normalized_from_observed_korean_header,inferred_from_observed_values,not_passed_primary
 아군_부대,아군 부대 Excel 추출 정보,operation,아군 부대가 수행하는 작전의 축약 표현,string,one,observed_in_link_page,inferred_from_observed_values,not_passed_primary

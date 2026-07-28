@@ -42,16 +42,16 @@ this fixed comparison.
 The same five ontologies cannot be placed unchanged on both sides of one run:
 trivial same-table/same-field candidates would dominate retrieval. The adapter
 therefore prepares five benchmarks. Each ontology is Source once and the other
-four ontologies are its Target. This processes all 27 Source fields while
+four ontologies are its Target. This processes all 28 Source fields while
 excluding same-ontology candidates without modifying retrieval code.
 
 | Source ontology | Source fields | Target fields |
 |---|---:|---:|
-| 작전명령 | 7 | 20 |
-| 아군 부대 | 4 | 23 |
-| 적군 부대 | 4 | 23 |
-| 교전규칙 | 6 | 21 |
-| 지형 정보 | 6 | 21 |
+| 작전명령 | 8 | 20 |
+| 아군 부대 | 4 | 24 |
+| 적군 부대 | 4 | 24 |
+| 교전규칙 | 6 | 22 |
+| 지형 정보 | 6 | 22 |
 
 ## Fixed implementation
 

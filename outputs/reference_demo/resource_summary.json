@@ -1,0 +1,92 @@
+{
+  "comparison_sha256": "b789c8c455578f88df7b2668039f06443370c9b9dbcf48e209b99ab93573ca54",
+  "credential_recorded": false,
+  "elapsed_by_benchmark": {
+    "defense-reference-enemy-unit-v1": 164.37,
+    "defense-reference-friendly-unit-v1": 189.2,
+    "defense-reference-operation-order-v1": 194.1,
+    "defense-reference-rules-v1": 174.5,
+    "defense-reference-terrain-v1": 180.87
+  },
+  "elapsed_seconds": 903.04,
+  "estimated_cost_usd_from_measured_tokens": 0.05865,
+  "logs": [
+    {
+      "file": "defense-reference-enemy-unit-v1.log",
+      "sha256": "0fbf1babe62d6ffe4a5b26c7667ecac460b9685bb506db68db7e4631869e5a22",
+      "stages": 5,
+      "traceback_detected": false
+    },
+    {
+      "file": "defense-reference-friendly-unit-v1.log",
+      "sha256": "5966d4b5a5743bbce2fca11624db3ea5504d5e24723d7e96921e6d0b3369046d",
+      "stages": 5,
+      "traceback_detected": false
+    },
+    {
+      "file": "defense-reference-operation-order-v1.log",
+      "sha256": "346f7da98dcfea0c9d7fc3478c57153a85d37f66e7989f0289d7fc8f8fc51536",
+      "stages": 5,
+      "traceback_detected": false
+    },
+    {
+      "file": "defense-reference-rules-v1.log",
+      "sha256": "f290e295faba8bbfdd6e2610a3ef600a5aaf0a6d4b3ec851afbb7805e2244998",
+      "stages": 5,
+      "traceback_detected": false
+    },
+    {
+      "file": "defense-reference-terrain-v1.log",
+      "sha256": "e3d44c507ade0888b5afc6daa2dc7d25e640426b6aa55db00d087a4ea37f43b5",
+      "stages": 5,
+      "traceback_detected": false
+    }
+  ],
+  "model_calls": {
+    "chat": 346,
+    "embedding": 420
+  },
+  "prediction_rows": 135,
+  "predictions_sha256": "85c505371d6181ae400eca74be6e4d60ee53498224b135e105a8fa0fc7a28611",
+  "pricing_reference": "https://developers.openai.com/api/docs/pricing",
+  "pricing_usd_per_million_tokens": {
+    "gpt-5-nano_input": 0.05,
+    "gpt-5-nano_output": 0.4,
+    "text-embedding-3-large_input": 0.13
+  },
+  "run_manifest_sha256": "29144aaab061fae290dd965217590b395e81bcb2bd1fa14c1c875fc36fc2b1e5",
+  "status": "completed",
+  "tokens": {
+    "chat_input": 223625,
+    "chat_output": 115804,
+    "embedding_input": 8824,
+    "total": 348253
+  },
+  "usage_files": [
+    {
+      "file": "defense-reference-enemy-unit-v1-usage.jsonl",
+      "records": 149,
+      "sha256": "8ec28573662ffb04f79e5d9e7cd02d5c1c34fcc8a1c31f1d59bf2bc5c1f2be22"
+    },
+    {
+      "file": "defense-reference-friendly-unit-v1-usage.jsonl",
+      "records": 150,
+      "sha256": "576d30b19bcfdd3e30e7532032d1dde0c23895e43cab9d9fef0bf33445b3f0f8"
+    },
+    {
+      "file": "defense-reference-operation-order-v1-usage.jsonl",
+      "records": 159,
+      "sha256": "67364c1ebbf3ce7ca77e1b2de7538979f8153e3d7dbb23abbc34be96a701f924"
+    },
+    {
+      "file": "defense-reference-rules-v1-usage.jsonl",
+      "records": 155,
+      "sha256": "9b541a7066283340900b4fc79cc3df821a5531af6e39b287820c5c5ab3c1e2f4"
+    },
+    {
+      "file": "defense-reference-terrain-v1-usage.jsonl",
+      "records": 153,
+      "sha256": "ec04405c4580210fa3e8af0dfdee033a6288fd803ae489ec52ff3a6f5e9fd883"
+    }
+  ]
+}

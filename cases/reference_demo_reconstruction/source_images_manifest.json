@@ -36,12 +36,19 @@
       "filename": "스크린샷 2026-07-10 오후 6.54.00.png",
       "sha256": "e50926cb714f4f1d3684e24d3eaded8a29d1b93f75037cbab10875bd5d9cf1f2",
       "use": "six headers and three visible records"
+    },
+    {
+      "role": "observable_saved_links_page",
+      "filename": "codex-clipboard-d41c26a6-6b0b-4dce-a212-abffcd8c5ce4.png",
+      "sha256": "1eb62cb5b2ed483c7139d2bc187b67d97bacede5e5c11e0c4eae37b51c6f70cd",
+      "use": "four conceptual positive saved relations and directly visible machine keys"
     }
   ],
   "transcription_rules": [
     "Only fully visible headers and cells are transcribed as observed.",
     "English machine keys not visible in a dataset preview are normalized and marked inferred in ontology_schema.csv.",
     "Truncated recommendation explanations remain truncated; hidden text is never completed.",
-    "The page states 16 total candidates, but only nine fully visible rows are recorded as the observable baseline."
+    "The page states 16 total candidates, but only nine fully visible rows are recorded as the observable baseline.",
+    "Saved relations are evaluation-only positives and are never written into SCHEMORA mapping or prompt inputs."
   ]
 }

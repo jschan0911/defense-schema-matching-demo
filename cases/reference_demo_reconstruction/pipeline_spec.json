@@ -8,7 +8,7 @@
     "schema_matching/column_rank.py"
   ],
   "adaptation_scope": "same frozen compatibility and telemetry patch used by the English USAspending-to-OCDS case",
-  "execution_status": "not_run_api_key_absent",
+  "execution_status": "completed",
   "strategy": "five pairwise benchmarks",
   "models": {
     "llm": "gpt-5-nano",

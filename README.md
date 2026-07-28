@@ -23,7 +23,9 @@ The data, licensing, sensitivity, target design, and estimated run budget are
 fixed in [`docs/execution_plan.md`](docs/execution_plan.md). No Matchmaker or
 G.E.R. run is part of this repository.
 
-The Korean and reference-demo SCHEMORA cases have no model output yet. Their
-gold mappings require independent review. The reference case is not a
-reproduction of the original product or algorithm, and hidden candidates are
-not reconstructed.
+The reference-demo case now contains one completed five-benchmark SCHEMORA run
+and a positive-only recovery comparison against four conceptual saved links.
+The Korean D2B case remains unrun. Neither case has complete independent gold,
+so precision and F1 are not reported. The reference case is not a reproduction
+of the original product or algorithm, and hidden candidates are not
+reconstructed.

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CASE = ROOT / "cases" / "reference_demo_reconstruction"
 PREDICTIONS = ROOT / "outputs" / "reference_demo" / "predictions.csv"
 OUTPUT = ROOT / "outputs" / "reference_demo" / "comparison.json"
+SAVED_POSITIVES = CASE / "observable_saved_positive_relations.csv"
 Pair = tuple[str, str, str, str]
 Source = tuple[str, str]
 
@@ -35,6 +36,11 @@ def pair_from_reference(row: dict[str, object]) -> Pair:
 def load_schemora(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
+    with path.open(encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def load_csv(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8", newline="") as handle:
         return list(csv.DictReader(handle))
 
@@ -83,9 +89,115 @@ def rank_correlation(
     }
 
 
+def positive_only_recovery(
+    positives: list[dict[str, str]], schemora: list[dict[str, str]]
+) -> dict[str, object]:
+    predicted = {
+        pair_from_schemora(row): row
+        for row in schemora
+    }
+    conceptual: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in positives:
+        conceptual[row["conceptual_relation_id"]].append(row)
+
+    details = []
+    for conceptual_id, rows in conceptual.items():
+        directed_details = []
+        for positive in rows:
+            pair = (
+                positive["source_table"],
+                positive["source_column"],
+                positive["target_object_type"],
+                positive["target_property"],
+            )
+            match = predicted.get(pair)
+            source_candidates = sorted(
+                (
+                    row
+                    for row in schemora
+                    if (
+                        row["source_table"],
+                        row["source_column"],
+                    )
+                    == pair[:2]
+                ),
+                key=lambda row: int(row["rank"]),
+            )
+            directed_details.append(
+                {
+                    "pair": {
+                        "source_table": pair[0],
+                        "source_column": pair[1],
+                        "target_table": pair[2],
+                        "target_column": pair[3],
+                    },
+                    "rank": int(match["rank"]) if match else None,
+                    "vector_score": match["vector_score"] if match else None,
+                    "bm25_score": match["bm25_score"] if match else None,
+                    "top_1": bool(match and int(match["rank"]) <= 1),
+                    "top_3": bool(match and int(match["rank"]) <= 3),
+                    "top_5": bool(match and int(match["rank"]) <= 5),
+                    "returned_candidates": [
+                        {
+                            "rank": int(candidate["rank"]),
+                            "target_table": candidate["target_object_type"],
+                            "target_column": candidate["target_property"],
+                            "vector_score": candidate["vector_score"],
+                            "bm25_score": candidate["bm25_score"],
+                        }
+                        for candidate in source_candidates
+                    ],
+                }
+            )
+        details.append(
+            {
+                "conceptual_relation_id": conceptual_id,
+                "direction": rows[0]["direction"],
+                "directed": directed_details,
+            }
+        )
+
+    at_k = {}
+    for k in (1, 3, 5):
+        directed_hits = [
+            detail[f"top_{k}"]
+            for relation in details
+            for detail in relation["directed"]
+        ]
+        conceptual_any = [
+            any(detail[f"top_{k}"] for detail in relation["directed"])
+            for relation in details
+        ]
+        conceptual_all = [
+            all(detail[f"top_{k}"] for detail in relation["directed"])
+            for relation in details
+        ]
+        at_k[str(k)] = {
+            "directed_recovery": sum(directed_hits) / len(directed_hits),
+            "directed_hits": sum(directed_hits),
+            "directed_total": len(directed_hits),
+            "conceptual_any_direction_recovery": (
+                sum(conceptual_any) / len(conceptual_any)
+            ),
+            "conceptual_all_directions_recovery": (
+                sum(conceptual_all) / len(conceptual_all)
+            ),
+            "conceptual_total": len(conceptual_all),
+        }
+    return {
+        "claim": (
+            "positive-only recovery; unobserved pairs are not negatives, so "
+            "precision and F1 are not computed"
+        ),
+        "at_k": at_k,
+        "relations": details,
+    }
+
+
 def main() -> None:
     reference = reference_rows()
     schemora = load_schemora(PREDICTIONS)
+    saved_positives = load_csv(SAVED_POSITIVES)
     feature_parity = json.loads(
         (CASE / "feature_parity.json").read_text(encoding="utf-8")
     )
@@ -111,20 +223,28 @@ def main() -> None:
         "feature_parity": feature_parity,
         "gold_metrics": {
             "publishable": bool(
-                gold_manifest["complete_for_all_27_source_fields"]
+                gold_manifest["complete_for_all_source_fields"]
                 and gold_manifest["independently_reviewed"]
             ),
             "recall_precision_f1": None,
             "reason": (
-                "withheld until a complete, independently reviewed 27-source gold "
+                "withheld until a complete, independently reviewed all-source gold "
                 "mapping is frozen"
             ),
+        },
+        "saved_link_positive_scope": {
+            "conceptual_relations": len(
+                {row["conceptual_relation_id"] for row in saved_positives}
+            ),
+            "directed_rows": len(saved_positives),
+            "pipeline_injection": "none; SCHEMORA mapping parquets contain zero rows",
         },
     }
     if not schemora:
         result["schemora_status"] = "not_run"
         result["candidate_similarity"] = None
         result["rank_similarity"] = None
+        result["saved_link_positive_recovery"] = None
     else:
         reference_set = {pair_from_reference(row) for row in reference}
         reference_sources = {pair[:2] for pair in reference_set}
@@ -148,6 +268,9 @@ def main() -> None:
         result["schemora_status"] = "loaded"
         result["candidate_similarity"] = {"at_k": at_k}
         result["rank_similarity"] = rank_correlation(reference, schemora)
+        result["saved_link_positive_recovery"] = positive_only_recovery(
+            saved_positives, schemora
+        )
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(
         json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n",

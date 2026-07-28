@@ -49,11 +49,14 @@ class DataTests(unittest.TestCase):
                 / "predictions.csv"
             ).exists()
         )
+        self.assertTrue(
+            (ROOT / "outputs" / "reference_demo" / "predictions.csv").exists()
+        )
         with (
             ROOT / "cases" / "reference_demo_reconstruction" / "ontology_schema.csv"
         ).open(newline="") as handle:
             schema = list(csv.DictReader(handle))
-        self.assertEqual(len(schema), 27)
+        self.assertEqual(len(schema), 28)
         self.assertTrue(
             all(row["sample_values_policy"] == "not_passed_primary" for row in schema)
         )
@@ -77,6 +80,10 @@ class DataTests(unittest.TestCase):
             ],
         )
         self.assertEqual(len(adapter["benchmarks"]), 5)
+        self.assertIn(
+            "zero-row mapping parquet",
+            adapter["input_policy"]["gold"],
+        )
         estimate = json.loads(
             (ROOT / "outputs" / "reference_demo" / "dry_run_estimate.json").read_text()
         )
@@ -85,8 +92,16 @@ class DataTests(unittest.TestCase):
         comparison = json.loads(
             (ROOT / "outputs" / "reference_demo" / "comparison.json").read_text()
         )
-        self.assertEqual(comparison["schemora_status"], "not_run")
-        self.assertIsNone(comparison["candidate_similarity"])
+        self.assertEqual(comparison["schemora_status"], "loaded")
+        self.assertEqual(
+            comparison["saved_link_positive_scope"]["conceptual_relations"], 4
+        )
+        self.assertEqual(
+            comparison["saved_link_positive_recovery"]["at_k"]["5"][
+                "directed_hits"
+            ],
+            4,
+        )
         self.assertFalse(comparison["gold_metrics"]["publishable"])
 
     def test_korean_case_has_source_target_and_draft_gold(self) -> None:

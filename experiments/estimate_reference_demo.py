@@ -25,7 +25,7 @@ def sha256(path: Path) -> str:
 
 def main() -> None:
     schema_path = CASE / "ontology_schema.csv"
-    gold_path = CASE / "draft_partial_gold_mapping.csv"
+    positive_path = CASE / "observable_saved_positive_relations.csv"
     with schema_path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
     counts = Counter(row["TableName"] for row in rows)
@@ -72,7 +72,7 @@ def main() -> None:
         "totals": totals,
         "input_sha256": {
             "ontology_schema.csv": sha256(schema_path),
-            "draft_partial_gold_mapping.csv": sha256(gold_path),
+            "observable_saved_positive_relations.csv": sha256(positive_path),
         },
         "environment": {
             "os": platform.platform(),

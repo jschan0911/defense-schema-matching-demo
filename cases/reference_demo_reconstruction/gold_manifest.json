@@ -1,8 +1,11 @@
 {
-  "file": "draft_partial_gold_mapping.csv",
-  "complete_for_all_27_source_fields": false,
+  "file": "observable_saved_positive_relations.csv",
+  "conceptual_positive_relations": 4,
+  "directed_evaluation_rows": 5,
+  "complete_for_all_source_fields": false,
   "independently_reviewed": false,
   "publishable_precision_or_f1": false,
-  "purpose": "adapter smoke test and annotation handoff only",
-  "required_next_step": "independent reviewer freezes link-worthy cross-ontology field pairs and explicit no-match labels"
+  "purpose": "positive-only recovery evaluation from the observed saved-link screen",
+  "pipeline_injection": "forbidden; adapter mapping parquet must contain zero rows",
+  "required_next_step": "independent reviewer freezes all valid links and explicit no-match labels before precision or F1"
 }

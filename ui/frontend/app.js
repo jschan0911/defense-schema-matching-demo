@@ -209,7 +209,7 @@ async function loadRecommendations() {
     if (!empty.hidden) {
       const item = currentCase();
       empty.innerHTML = ["schema-ready-not-run", "pipeline-ready-not-run"].includes(item.status)
-        ? `<strong>아직 ${item.id === "reference-demo-reconstruction" ? "SCHEMORA " : ""}추천 결과가 없습니다.</strong><p>${item.id === "reference-demo-reconstruction" ? "5개 온톨로지 입력과 고정 실행 파이프라인은 준비됐지만 API 키가 없어 실행하지 않았습니다. Reference 탭의 관찰값은 모델 결과가 아닙니다." : "공식 한글 Source·Target 스키마와 초안 정답지만 준비된 상태입니다."}</p>`
+        ? `<strong>아직 ${item.id === "reference-demo-reconstruction" ? "SCHEMORA " : ""}추천 결과가 없습니다.</strong><p>${item.id === "reference-demo-reconstruction" ? "5개 온톨로지 입력과 고정 실행 파이프라인은 준비됐지만 변환된 실제 결과 파일이 없습니다. Reference 탭의 관찰값은 모델 결과가 아닙니다." : "공식 한글 Source·Target 스키마와 초안 정답지만 준비된 상태입니다."}</p>`
         : "<strong>조건에 맞는 추천이 없습니다.</strong><p>검색어나 상태 필터를 변경해보세요.</p>";
     }
     $("#notice").textContent = "";

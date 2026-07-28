@@ -8,7 +8,7 @@ Keep one private project and one review application. Isolate each case under
 | Case | Purpose | Data status | Result status |
 |---|---|---|---|
 | USAspending → OCDS | English international-standard baseline | Public schema metadata | UI fixture; live run remains separate |
-| Synthetic C2 comparison | Observable reference workflow | Screenshot-transcribed synthetic rows | 9 visible reference rows; SCHEMORA not run |
+| Synthetic C2 comparison | Observable reference workflow | Screenshot-transcribed synthetic rows | 9 visible recommendations; SCHEMORA run loaded |
 | D2B → Korean contract standard | Korean domestic standardization | Official API schema metadata | Not run |
 
 ## Claim boundaries
@@ -21,15 +21,16 @@ copying or translating them.
 
 ### Screenshot-guided reconstruction
 
-Six screenshots establish the observable scope: five dataset previews and one
-link-review page. They do not disclose the original parser, graph builder,
-validator, planner, LLM prompt, calibration rule, or ontology mutation logic.
+Seven screenshots establish the observable scope: five dataset previews, one
+link-review page, and one saved-link management page. They do not disclose the
+original parser, graph builder, validator, planner, LLM prompt, calibration
+rule, or ontology mutation logic.
 
 The case therefore implements three explicitly separated layers:
 
 1. an evidence layer containing the five visible synthetic tables and the nine
    candidate rows fully visible in the recommendation screenshot;
-2. a SCHEMORA layer that accepts all 27 frozen schema fields and reads only
+2. a SCHEMORA layer that accepts all 28 frozen schema fields and reads only
    converted output from five real pinned-pipeline runs; and
 3. a UI layer that keeps the reference rows read-only while enabling search,
    filtering, approval, ignore, reset, and evidence inspection for actual

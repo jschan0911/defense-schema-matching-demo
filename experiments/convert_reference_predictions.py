@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,10 @@ from convert_predictions import grade, score_for, selected_ids
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "outputs" / "reference_demo" / "predictions.csv"
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def convert(frame: Any, top_k: int) -> list[dict[str, str | int]]:
@@ -83,12 +88,23 @@ def main() -> None:
         raise SystemExit("no SCHEMORA predictions found")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=list(rows[0]),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
     metadata = {
         "source": "five pinned SCHEMORA rank artifacts",
-        "artifacts": [str(path) for path in args.artifact],
+        "artifacts": [
+            {
+                "benchmark": path.parents[1].name,
+                "file": path.name,
+                "sha256": sha256(path),
+            }
+            for path in args.artifact
+        ],
         "rows": len(rows),
         "top_k": args.top_k,
         "score_warning": "vector/BM25 scores are not original-demo scores",
