@@ -14,6 +14,19 @@ ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK = "defense-usaspending-ocds-v1"
 
 
+def dotenv_has_api_key(path: Path) -> bool:
+    if not path.is_file():
+        return False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if (
+            stripped.startswith("API_KEY=")
+            and stripped.removeprefix("API_KEY=").strip()
+        ):
+            return True
+    return False
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--upstream-root", type=Path, required=True)
@@ -38,15 +51,15 @@ def main() -> None:
     estimate = json.loads(args.dry_run_estimate.read_text(encoding="utf-8"))
     if not estimate.get("gate_passed"):
         raise SystemExit("dry-run gate did not pass")
-    if not os.getenv("API_KEY"):
+    upstream = args.upstream_root.resolve()
+    if not os.getenv("API_KEY") and not dotenv_has_api_key(upstream / ".env"):
         raise SystemExit(
-            "API_KEY is not set. Set it in the process environment; do not "
-            "commit it or pass it as a command-line argument."
+            "API_KEY is not set in the process environment or the upstream "
+            ".env. Do not commit it or pass it as a command-line argument."
         )
     if (ROOT / "outputs" / "run_manifest.json").exists():
         raise SystemExit("a completed run manifest already exists; repeats are blocked")
 
-    upstream = args.upstream_root.resolve()
     config = upstream / f"config_{BENCHMARK}.toml"
     if not config.exists():
         raise SystemExit("adapter output is missing; run schemora_adapter.py first")
