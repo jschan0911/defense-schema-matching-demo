@@ -85,14 +85,10 @@ class Store:
         return connection
 
     def reload(self) -> None:
-        if self.predictions_path is None:
+        if self.predictions_path is None or not self.predictions_path.exists():
             with self.lock:
                 self.rows = []
             return
-        if not self.predictions_path.exists():
-            raise FileNotFoundError(
-                f"prediction CSV not found: {self.predictions_path}"
-            )
         with self.gold_path.open(encoding="utf-8", newline="") as handle:
             gold_rows = list(csv.DictReader(handle))
         self.gold = {
@@ -243,6 +239,18 @@ class Handler(BaseHTTPRequestHandler):
             candidate.relative_to(ROOT.resolve())
             self.send_json(json.loads(candidate.read_text(encoding="utf-8")))
             return
+        if parsed.path == "/api/reference":
+            item = next(entry for entry in self.catalog if entry["id"] == case_id)
+            reference_path = item.get("reference_baseline")
+            if not reference_path:
+                self.send_json({"candidates": [], "available": False})
+                return
+            candidate = (ROOT / str(reference_path)).resolve()
+            candidate.relative_to(ROOT.resolve())
+            payload = json.loads(candidate.read_text(encoding="utf-8"))
+            payload["available"] = True
+            self.send_json(payload)
+            return
         self.serve_static(parsed.path)
 
     def do_POST(self) -> None:
@@ -328,6 +336,16 @@ def main() -> None:
             if args.gold != ROOT / "data" / "gold_mapping.csv":
                 gold = args.gold
         stores[case_id] = Store(predictions, gold, args.db, case_id=case_id)
+        if (
+            case_id == "reference-demo-reconstruction"
+            and predictions is not None
+            and predictions.exists()
+        ):
+            item["status"] = "schemora-results-loaded"
+            item["result_note"] = (
+                "실제 SCHEMORA 변환 CSV가 로드되었습니다. 관찰 기준선 점수와 "
+                "SCHEMORA 검색 점수는 서로 다른 척도로 표시됩니다."
+            )
     Handler.catalog = catalog
     Handler.stores = stores
     server = ThreadingHTTPServer((args.host, args.port), Handler)

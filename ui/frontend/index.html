@@ -43,7 +43,7 @@
       <aside class="rail">
         <p class="rail-title">SCAN SUMMARY</p>
         <div class="review-count"><strong id="pending-count">0</strong><span id="total-count">/ 0</span></div>
-        <p class="muted">검토 대기</p>
+        <p id="summary-label" class="muted">검토 대기</p>
         <div id="decision-counts" class="decision-counts"></div>
 
         <div class="filter-block">
@@ -76,6 +76,10 @@
             <p class="eyebrow">LINK RECOMMENDATIONS</p>
             <strong id="shown-count">0건 표시</strong>
           </div>
+          <div id="result-mode" class="result-mode" hidden>
+            <button data-mode="reference" class="active">Reference · 관찰값</button>
+            <button data-mode="schemora">SCHEMORA 결과</button>
+          </div>
           <div class="bulk">
             <span id="selected-count">0건 선택</span>
             <button id="approve-selected">선택 승인</button>
@@ -98,7 +102,7 @@
         <input class="select-row" type="checkbox" aria-label="추천 선택" />
         <div class="score">
           <strong></strong>
-          <small>검색 점수</small>
+          <small></small>
         </div>
         <div class="endpoint from">
           <strong></strong>

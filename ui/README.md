@@ -30,3 +30,14 @@ Approval, ignore, reset-to-pending, search, status filtering, multi-select
 approval, case switching, five-dataset preview, raw evidence display, and
 result reload are implemented. The `OntologySink` interface is separate, and
 the current sink is intentionally a mock that performs no ontology mutation.
+
+For the synthetic C2 case, two result surfaces are intentionally separate:
+
+- `Reference · 관찰값` reads the nine fully visible screenshot candidates from
+  `observable_reference.json` and is read-only.
+- `SCHEMORA 결과` reads only
+  `outputs/reference_demo/predictions.csv`. It stays empty until the pinned
+  pipeline has actually run and its artifacts have been converted.
+
+The displayed original-demo score and SCHEMORA vector/BM25 scores are labeled
+as different scales. The UI never copies one into the other.

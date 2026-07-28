@@ -1,0 +1,34 @@
+{
+  "official_repository": "https://github.com/schemorapaper/schemora",
+  "official_commit": "1339fedf8113fc3746d5664f1453248e47ee310c",
+  "adapter_patch_sha256": "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
+  "adapter_modified_upstream_files": [
+    "utils/llm.py",
+    "utils/embedding.py",
+    "schema_matching/column_rank.py"
+  ],
+  "adaptation_scope": "same frozen compatibility and telemetry patch used by the English USAspending-to-OCDS case",
+  "execution_status": "not_run_api_key_absent",
+  "strategy": "five pairwise benchmarks",
+  "models": {
+    "llm": "gpt-5-nano",
+    "embedding": "text-embedding-3-large"
+  },
+  "settings": {
+    "n_candidates": 3,
+    "query_enrichment": true,
+    "document_enrichment": true,
+    "non_sim_prompt": true,
+    "embedding_search": true,
+    "full_text_search": true,
+    "table_selection": true,
+    "llm_workers": 2,
+    "embedding_workers": 1
+  },
+  "output_contract": {
+    "real_predictions": "outputs/reference_demo/predictions.csv",
+    "observable_reference": "cases/reference_demo_reconstruction/observable_reference.json",
+    "comparison": "outputs/reference_demo/comparison.json"
+  },
+  "score_rule": "original-demo score and SCHEMORA retrieval scores are never treated as the same scale"
+}

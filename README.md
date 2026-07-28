@@ -3,8 +3,9 @@
 A single human-in-the-loop workbench with three strictly isolated case packs:
 
 1. **USAspending → OCDS** — the preserved English baseline.
-2. **Synthetic C2 reference reconstruction** — five screenshot-transcribed,
-   seminar-only datasets and a deterministic 16-link review flow.
+2. **Synthetic C2 observable comparison** — five screenshot-transcribed,
+   seminar-only datasets, nine fully visible reference candidates, and a
+   separately wired SCHEMORA pipeline.
 3. **D2B → Korean contract open standard** — an official Korean-to-Korean
    schema case, prepared but not yet run.
 
@@ -22,6 +23,7 @@ The data, licensing, sensitivity, target design, and estimated run budget are
 fixed in [`docs/execution_plan.md`](docs/execution_plan.md). No Matchmaker or
 G.E.R. run is part of this repository.
 
-The Korean case has no model output yet. Its gold mapping is a draft that
-requires independent procurement-domain review. The reconstructed demo is not
-a reproduction of the original product or algorithm.
+The Korean and reference-demo SCHEMORA cases have no model output yet. Their
+gold mappings require independent review. The reference case is not a
+reproduction of the original product or algorithm, and hidden candidates are
+not reconstructed.

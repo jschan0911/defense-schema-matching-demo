@@ -5,6 +5,7 @@ const state = {
   summary: { total: 0, pending: 0, approved: 0, ignored: 0 },
   selected: new Set(),
   datasets: [],
+  viewMode: "schemora",
 };
 const $ = (selector) => document.querySelector(selector);
 
@@ -32,6 +33,8 @@ function statusLabel(status) {
     reconstructed: "화면 기반 복구 완료",
     "fixture-ready": "UI 기준선 준비",
     "run-loaded": "실행 결과 로드됨",
+    "pipeline-ready-not-run": "SCHEMORA 연결 완료 · 실행 전",
+    "schemora-results-loaded": "SCHEMORA 결과 로드됨",
     "schema-ready-not-run": "스키마 준비 · 실행 전",
   }[status] || status;
 }
@@ -39,7 +42,7 @@ function statusLabel(status) {
 function kindLabel(kind) {
   return {
     "international-standard": "CASE 01 · INTERNATIONAL STANDARD",
-    "screenshot-guided-reconstruction": "CASE 02 · REFERENCE RECONSTRUCTION",
+    "screenshot-guided-reconstruction": "CASE 02 · OBSERVABLE REFERENCE COMPARISON",
     "domestic-standardization": "CASE 03 · KOREAN STANDARDIZATION",
   }[kind] || kind;
 }
@@ -64,6 +67,11 @@ function renderCaseBrief() {
   $("#case-description").textContent = item.description;
   $("#case-status").textContent = statusLabel(item.status);
   $("#result-note").textContent = item.result_note;
+  const isReferenceCase = item.id === "reference-demo-reconstruction";
+  $("#result-mode").hidden = !isReferenceCase;
+  $("#result-mode").querySelectorAll("button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.mode === state.viewMode);
+  });
 }
 
 function renderSummary() {
@@ -74,6 +82,9 @@ function renderSummary() {
     <span><i class="approved-dot"></i> 승인 ${summary.approved}</span>
     <span><i class="ignored-dot"></i> 무시 ${summary.ignored}</span>
   `;
+  const readOnly = state.viewMode === "reference";
+  $("#summary-label").textContent = readOnly ? "관찰 후보 · 읽기 전용" : "검토 대기";
+  $(".bulk").hidden = readOnly;
 }
 
 function updateSelected() {
@@ -92,11 +103,13 @@ async function review(ids, status) {
 }
 
 function scoreFor(row) {
+  if (row.reference) return row.original_score;
   const numeric = Number.parseFloat(row.vector_score);
   return Number.isFinite(numeric) ? Math.round(numeric * 100) : "—";
 }
 
 function linkLabel(row) {
+  if (row.link_name) return row.link_name;
   const source = row.source_column.replaceAll("_", " ");
   const target = row.target_property.replaceAll("_", " ");
   return source === target ? "동일 의미" : `${source} 연결`;
@@ -106,21 +119,25 @@ function makeRow(row) {
   const element = $("#row-template").content.firstElementChild.cloneNode(true);
   element.dataset.status = row.status;
   element.querySelector(".score strong").textContent = scoreFor(row);
+  element.querySelector(".score small").textContent = row.reference ? "원 데모 점수" : "검색 점수";
   element.querySelector(".from strong").textContent = row.source_column;
   element.querySelector(".from span").textContent = row.source_table;
   element.querySelector(".to strong").textContent = row.target_property;
   element.querySelector(".to span").textContent = row.target_object_type;
   element.querySelector(".link-name strong").textContent = linkLabel(row);
   const grade = element.querySelector(".grade");
-  grade.textContent = { High: "높음", Medium: "중간", Low: "낮음" }[row.rank_grade] || row.rank_grade;
+  grade.textContent = row.reference
+    ? row.reference_confidence
+    : ({ High: "높음", Medium: "중간", Low: "낮음" }[row.rank_grade] || row.rank_grade);
   grade.dataset.grade = row.rank_grade.toLowerCase();
   const summary = element.querySelector(".reason summary");
   summary.textContent = row.explanation || "추천 근거 보기";
   element.querySelector(".explanation").textContent = row.explanation || "설명이 없습니다.";
   element.querySelector(".source-definition").textContent = row.source_definition || "—";
   element.querySelector(".target-definition").textContent = row.target_definition || "—";
-  element.querySelector(".raw-scores").textContent =
-    `순위 ${row.rank} · 검색 방식 ${row.retrieval_methods || "—"} · vector ${row.vector_score || "—"} · BM25 ${row.bm25_score || "—"}`;
+  element.querySelector(".raw-scores").textContent = row.reference
+    ? `화면 표시 순서 ${row.rank} · 원 데모 점수 ${row.original_score} · 점수 산식과 보정 방식은 공개되지 않음`
+    : `쿼리 내 순위 ${row.rank} · 검색 방식 ${row.retrieval_methods || "—"} · vector ${row.vector_score || "—"} · BM25 ${row.bm25_score || "—"} · 원 데모 점수와 직접 비교 불가`;
 
   const checkbox = element.querySelector(".select-row");
   checkbox.checked = state.selected.has(row.id);
@@ -128,9 +145,14 @@ function makeRow(row) {
     checkbox.checked ? state.selected.add(row.id) : state.selected.delete(row.id);
     updateSelected();
   });
-  element.querySelector(".approve").addEventListener("click", () => review([row.id], "approved"));
-  element.querySelector(".ignore").addEventListener("click", () => review([row.id], "ignored"));
-  element.querySelector(".pending").addEventListener("click", () => review([row.id], "pending"));
+  if (row.reference) {
+    checkbox.disabled = true;
+    element.querySelector(".actions").innerHTML = "<span class=\"read-only\">관찰값</span>";
+  } else {
+    element.querySelector(".approve").addEventListener("click", () => review([row.id], "approved"));
+    element.querySelector(".ignore").addEventListener("click", () => review([row.id], "ignored"));
+    element.querySelector(".pending").addEventListener("click", () => review([row.id], "pending"));
+  }
   return element;
 }
 
@@ -139,6 +161,39 @@ async function loadRecommendations() {
   const status = encodeURIComponent($("#status").value);
   $("#notice").textContent = "추천을 불러오는 중입니다…";
   try {
+    if (state.viewMode === "reference" && state.caseId === "reference-demo-reconstruction") {
+      const payload = await api(caseQuery("/api/reference"));
+      state.rows = payload.candidates.map((row) => ({
+        id: `observable-${row.visible_order}`,
+        reference: true,
+        original_score: row.score,
+        source_table: row.from_table,
+        source_column: row.from_field,
+        target_object_type: row.to_table,
+        target_property: row.to_field,
+        link_name: row.link_name,
+        rank: row.visible_order,
+        rank_grade: row.confidence === "높음" ? "High" : "Low",
+        reference_confidence: row.confidence,
+        explanation: row.visible_reason,
+        source_definition: "사진의 From 열에서 직접 관찰된 필드",
+        target_definition: "사진의 To 열에서 직접 관찰된 필드",
+        status: "reference",
+      }));
+      state.summary = {
+        total: state.rows.length,
+        pending: state.rows.length,
+        approved: 0,
+        ignored: 0,
+      };
+      renderSummary();
+      $("#rows").replaceChildren(...state.rows.map(makeRow));
+      $(".table-shell").hidden = false;
+      $("#shown-count").textContent = `${state.rows.length}건 표시 · 화면상 전체 16건 중 완전 가시 9건`;
+      $("#empty").hidden = true;
+      $("#notice").textContent = "설명은 사진에서 보이는 지점까지만 기록했으며 숨은 문장을 완성하지 않았습니다.";
+      return;
+    }
     const [summary, candidates] = await Promise.all([
       api(caseQuery("/api/summary")),
       api(caseQuery(`/api/candidates?q=${q}&status=${status}&limit=1000`)),
@@ -147,13 +202,14 @@ async function loadRecommendations() {
     state.rows = candidates.rows;
     renderSummary();
     $("#rows").replaceChildren(...state.rows.map(makeRow));
+    $(".table-shell").hidden = state.rows.length === 0;
     $("#shown-count").textContent = `${candidates.filtered_total}건 표시`;
     const empty = $("#empty");
     empty.hidden = state.rows.length > 0;
     if (!empty.hidden) {
       const item = currentCase();
-      empty.innerHTML = item.status === "schema-ready-not-run"
-        ? "<strong>아직 추천 결과가 없습니다.</strong><p>공식 한글 Source·Target 스키마와 초안 정답지만 준비된 상태입니다. 실행 전에는 점수를 표시하지 않습니다.</p>"
+      empty.innerHTML = ["schema-ready-not-run", "pipeline-ready-not-run"].includes(item.status)
+        ? `<strong>아직 ${item.id === "reference-demo-reconstruction" ? "SCHEMORA " : ""}추천 결과가 없습니다.</strong><p>${item.id === "reference-demo-reconstruction" ? "5개 온톨로지 입력과 고정 실행 파이프라인은 준비됐지만 API 키가 없어 실행하지 않았습니다. Reference 탭의 관찰값은 모델 결과가 아닙니다." : "공식 한글 Source·Target 스키마와 초안 정답지만 준비된 상태입니다."}</p>`
         : "<strong>조건에 맞는 추천이 없습니다.</strong><p>검색어나 상태 필터를 변경해보세요.</p>";
     }
     $("#notice").textContent = "";
@@ -164,6 +220,7 @@ async function loadRecommendations() {
 
 async function switchCase(caseId) {
   state.caseId = caseId;
+  state.viewMode = caseId === "reference-demo-reconstruction" ? "reference" : "schemora";
   state.selected.clear();
   $("#search").value = "";
   $("#status").value = "all";
@@ -223,7 +280,14 @@ async function init() {
   try {
     const payload = await api("/api/cases");
     state.cases = payload.cases;
-    state.caseId = state.cases[0].id;
+    const params = new URLSearchParams(window.location.search);
+    const requestedCase = params.get("case");
+    state.caseId = state.cases.some((item) => item.id === requestedCase)
+      ? requestedCase
+      : state.cases[0].id;
+    state.viewMode = state.caseId === "reference-demo-reconstruction"
+      ? (params.get("mode") === "schemora" ? "schemora" : "reference")
+      : "schemora";
     renderCases();
     renderCaseBrief();
     await loadRecommendations();
@@ -246,6 +310,15 @@ $("#reload").addEventListener("click", async () => {
 });
 $("#open-datasets").addEventListener("click", openDatasets);
 $("#close-datasets").addEventListener("click", () => $("#dataset-dialog").close());
+$("#result-mode").addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-mode]");
+  if (!button) return;
+  state.viewMode = button.dataset.mode;
+  state.selected.clear();
+  renderCaseBrief();
+  updateSelected();
+  await loadRecommendations();
+});
 $("#dataset-dialog").addEventListener("click", (event) => {
   if (event.target === $("#dataset-dialog")) $("#dataset-dialog").close();
 });

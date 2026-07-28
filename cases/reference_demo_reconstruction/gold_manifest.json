@@ -1,0 +1,8 @@
+{
+  "file": "draft_partial_gold_mapping.csv",
+  "complete_for_all_27_source_fields": false,
+  "independently_reviewed": false,
+  "publishable_precision_or_f1": false,
+  "purpose": "adapter smoke test and annotation handoff only",
+  "required_next_step": "independent reviewer freezes link-worthy cross-ontology field pairs and explicit no-match labels"
+}

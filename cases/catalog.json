@@ -19,12 +19,13 @@
       "short_name": "데모 복구",
       "language": "한국어 → 한국어",
       "kind": "screenshot-guided-reconstruction",
-      "status": "reconstructed",
-      "description": "제공된 화면에서 관찰 가능한 5개 합성 데이터셋과 링크 검토 흐름을 재구성한 사례입니다.",
-      "predictions": "cases/reference_demo_reconstruction/predictions.csv",
-      "gold": "cases/reference_demo_reconstruction/gold_mapping.csv",
+      "status": "pipeline-ready-not-run",
+      "description": "사진에서 동결한 5개 합성 데이터셋을 실제 SCHEMORA 파이프라인에 연결하고, 화면에서 보이는 후보와 별도로 비교하는 사례입니다.",
+      "predictions": "outputs/reference_demo/predictions.csv",
+      "reference_baseline": "cases/reference_demo_reconstruction/observable_reference.json",
+      "gold": "cases/reference_demo_reconstruction/draft_partial_gold_mapping.csv",
       "dataset_preview": "cases/reference_demo_reconstruction/datasets.json",
-      "result_note": "원본 알고리즘 재현이 아닌 화면·데이터 기반의 결정론적 기준 구현입니다."
+      "result_note": "관찰 기준선 9건만 기록했습니다. API 키가 없어 SCHEMORA는 실행하지 않았으며 결과 점수는 비어 있습니다."
     },
     {
       "id": "d2b-contract-standard",

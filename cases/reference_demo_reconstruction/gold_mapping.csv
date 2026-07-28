@@ -1,7 +1,0 @@
-source_table,source_column,target_object_type,target_property,mapping_type,difficulty,rationale,evidence_source,evidence_location,annotation_status,review_status
-작전명령,목표_지형,지형_정보,명칭,1:1,easy,작전명령의 목표 지형 문자열은 지형 정보의 공식 명칭을 참조한다.,제공 스크린샷,작전명령·지형 정보 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed
-작전명령,대상_부대,아군_부대,부대_ID,1:1,easy,대상 부대 식별자는 아군 부대 식별자와 동일한 값으로 연결된다.,제공 스크린샷,작전명령·아군 부대 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed
-작전명령,적용_규정,교전규칙,규칙_ID,1:1,easy,작전명령의 적용 규정은 교전규칙 식별자를 직접 참조한다.,제공 스크린샷,작전명령·교전규칙 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed
-아군_부대,수행_작전,작전명령,임무,1:1,context,부대의 수행 작전 축약값은 작전명령 임무의 지형 번호와 작전 유형으로 확인된다.,제공 스크린샷,아군 부대·작전명령 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed
-적군_부대,관련_작전,작전명령,임무,1:1,context,적군 관련 작전 축약값은 작전명령 임무와 연결된다.,제공 스크린샷,적군 부대·작전명령 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed
-교전규칙,적용_조건,작전명령,유형,1:1,context,교전규칙 적용 조건의 공격·방어 표현은 작전명령 유형으로 판정된다.,제공 스크린샷,교전규칙·작전명령 미리보기,draft_complete,screenshot_transcription_not_sme_reviewed

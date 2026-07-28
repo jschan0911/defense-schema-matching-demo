@@ -22,7 +22,7 @@ class DataTests(unittest.TestCase):
         )
         self.assertIsNone(cases["d2b-contract-standard"]["predictions"])
 
-    def test_reference_demo_is_synthetic_and_complete(self) -> None:
+    def test_reference_demo_observed_data_and_baseline_are_bounded(self) -> None:
         payload = json.loads(
             (
                 ROOT / "cases" / "reference_demo_reconstruction" / "datasets.json"
@@ -30,11 +30,64 @@ class DataTests(unittest.TestCase):
         )
         self.assertIn("합성", payload["notice"])
         self.assertEqual(len(payload["datasets"]), 5)
+        baseline = json.loads(
+            (
+                ROOT
+                / "cases"
+                / "reference_demo_reconstruction"
+                / "observable_reference.json"
+            ).read_text()
+        )
+        self.assertEqual(baseline["page_reported_total"], 16)
+        self.assertEqual(baseline["fully_visible_candidates_recorded"], 9)
+        self.assertEqual(len(baseline["candidates"]), 9)
+        self.assertFalse(
+            (
+                ROOT
+                / "cases"
+                / "reference_demo_reconstruction"
+                / "predictions.csv"
+            ).exists()
+        )
         with (
-            ROOT / "cases" / "reference_demo_reconstruction" / "predictions.csv"
+            ROOT / "cases" / "reference_demo_reconstruction" / "ontology_schema.csv"
         ).open(newline="") as handle:
-            predictions = list(csv.DictReader(handle))
-        self.assertEqual(len(predictions), 16)
+            schema = list(csv.DictReader(handle))
+        self.assertEqual(len(schema), 27)
+        self.assertTrue(
+            all(row["sample_values_policy"] == "not_passed_primary" for row in schema)
+        )
+        adapter = json.loads(
+            (ROOT / "outputs" / "reference_demo" / "adapter_manifest.json").read_text()
+        )
+        self.assertEqual(
+            adapter["official_commit"],
+            "1339fedf8113fc3746d5664f1453248e47ee310c",
+        )
+        self.assertEqual(
+            adapter["adapter_patch_sha256"],
+            "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
+        )
+        self.assertEqual(
+            adapter["adapter_modified_upstream_files"],
+            [
+                "utils/llm.py",
+                "utils/embedding.py",
+                "schema_matching/column_rank.py",
+            ],
+        )
+        self.assertEqual(len(adapter["benchmarks"]), 5)
+        estimate = json.loads(
+            (ROOT / "outputs" / "reference_demo" / "dry_run_estimate.json").read_text()
+        )
+        self.assertTrue(estimate["gate_passed"])
+        self.assertFalse(estimate["network_or_model_calls_made"])
+        comparison = json.loads(
+            (ROOT / "outputs" / "reference_demo" / "comparison.json").read_text()
+        )
+        self.assertEqual(comparison["schemora_status"], "not_run")
+        self.assertIsNone(comparison["candidate_similarity"])
+        self.assertFalse(comparison["gold_metrics"]["publishable"])
 
     def test_korean_case_has_source_target_and_draft_gold(self) -> None:
         payload = json.loads(

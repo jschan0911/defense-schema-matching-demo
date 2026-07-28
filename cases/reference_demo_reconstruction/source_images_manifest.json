@@ -1,0 +1,47 @@
+{
+  "scope": "user-supplied screenshots; hashes only, images are not redistributed",
+  "images": [
+    {
+      "role": "observable_link_page",
+      "filename": "스크린샷 2026-07-08 오후 3.24.56.png",
+      "sha256": "2746a3d57cedd73c31bf46397577de9bd1f1c6eb65b433ca008eb11ecd850e39",
+      "use": "nine fully visible candidate rows and visible UI functions"
+    },
+    {
+      "role": "friendly_unit_dataset",
+      "filename": "스크린샷 2026-07-10 오후 6.53.51.png",
+      "sha256": "7bd605450588092c3625627d9d4b4ed71b627edda4df82aa7f7fae07b54a705a",
+      "use": "four headers and three visible records"
+    },
+    {
+      "role": "enemy_unit_dataset",
+      "filename": "스크린샷 2026-07-10 오후 6.53.54.png",
+      "sha256": "740c44589153ae55e633a1945e6ee8af7d8d63ae6f3a4ddc16c232af4d2e5e2c",
+      "use": "four headers and three visible records"
+    },
+    {
+      "role": "operation_order_dataset",
+      "filename": "스크린샷 2026-07-10 오후 6.53.48.png",
+      "sha256": "a59fef8ec7bd2fdb801faee7e577661b6828c6632a4deceee928c469d91d454d",
+      "use": "seven headers and three visible records"
+    },
+    {
+      "role": "rules_dataset",
+      "filename": "스크린샷 2026-07-10 오후 6.53.57.png",
+      "sha256": "39633c9ec65ee98ec941d2ca07d5f00a41ba365c12085e8a91984fc48c24cf1f",
+      "use": "six headers and six visible records"
+    },
+    {
+      "role": "terrain_dataset",
+      "filename": "스크린샷 2026-07-10 오후 6.54.00.png",
+      "sha256": "e50926cb714f4f1d3684e24d3eaded8a29d1b93f75037cbab10875bd5d9cf1f2",
+      "use": "six headers and three visible records"
+    }
+  ],
+  "transcription_rules": [
+    "Only fully visible headers and cells are transcribed as observed.",
+    "English machine keys not visible in a dataset preview are normalized and marked inferred in ontology_schema.csv.",
+    "Truncated recommendation explanations remain truncated; hidden text is never completed.",
+    "The page states 16 total candidates, but only nine fully visible rows are recorded as the observable baseline."
+  ]
+}
