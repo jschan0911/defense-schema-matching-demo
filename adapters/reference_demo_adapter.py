@@ -175,8 +175,8 @@ def main() -> None:
     manifest = {
         "run_id": "defense_reference_demo_schemora_gpt5_nano_v1",
         "claim": (
-            "same pinned official-code adaptation as the frozen English case; "
-            "execution status is recorded separately in run_manifest.json"
+            "pinned official-code adaptation for this demonstration; execution "
+            "status is recorded separately in run_manifest.json"
         ),
         "official_repository": "https://github.com/schemorapaper/schemora",
         "official_commit": actual_commit,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local review API for three isolated schema-matching case studies."""
+"""Local review API for the synthetic C2 SCHEMORA demonstration."""
 
 from __future__ import annotations
 
@@ -305,16 +305,9 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--predictions",
-        type=Path,
-        default=ROOT / "outputs" / "predictions.csv",
-    )
-    parser.add_argument("--gold", type=Path, default=ROOT / "data" / "gold_mapping.csv")
     parser.add_argument("--db", type=Path, default=ROOT / "ui" / "review.db")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--demo", action="store_true")
     args = parser.parse_args()
     catalog_path = ROOT / "cases" / "catalog.json"
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))["cases"]
@@ -324,23 +317,8 @@ def main() -> None:
         predictions_value = item.get("predictions")
         predictions = ROOT / str(predictions_value) if predictions_value else None
         gold = ROOT / str(item["gold"])
-        if case_id == "usaspending-ocds":
-            if args.demo:
-                predictions = ROOT / "tests" / "fixtures" / "demo_predictions.csv"
-            elif args.predictions.exists():
-                predictions = args.predictions
-                item["status"] = "run-loaded"
-                item["result_note"] = (
-                    "로컬 outputs/predictions.csv에서 실제 실행 결과를 불러왔습니다."
-                )
-            if args.gold != ROOT / "data" / "gold_mapping.csv":
-                gold = args.gold
         stores[case_id] = Store(predictions, gold, args.db, case_id=case_id)
-        if (
-            case_id == "reference-demo-reconstruction"
-            and predictions is not None
-            and predictions.exists()
-        ):
+        if predictions is not None and predictions.exists():
             item["status"] = "schemora-results-loaded"
             item["result_note"] = (
                 "실제 SCHEMORA 변환 CSV가 로드되었습니다. 관찰 기준선 점수와 "
@@ -351,7 +329,7 @@ def main() -> None:
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(
         f"Review interface: http://{args.host}:{args.port} "
-        f"({len(stores)} isolated cases)"
+        f"({len(stores)} demonstration case)"
     )
     server.serve_forever()
 

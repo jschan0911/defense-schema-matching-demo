@@ -73,14 +73,13 @@ excluding same-ontology candidates without modifying retrieval code.
 - embedding workers: `1`
 
 The adapter and runner reject any different commit or patch. The patch is the
-same compatibility and telemetry layer used for the frozen English case; this
+frozen compatibility and telemetry layer used for this demonstration; this
 is therefore an official-code adaptation rather than an unmodified-upstream
 execution.
 
 ## Exact preparation and run sequence
 
-Use the same local pinned checkout and its Python environment previously used
-for the English case:
+Use the local pinned checkout and its Python environment:
 
 ```bash
 python3 experiments/estimate_reference_demo.py

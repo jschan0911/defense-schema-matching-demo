@@ -7,7 +7,7 @@
     "utils/embedding.py",
     "schema_matching/column_rank.py"
   ],
-  "adaptation_scope": "same frozen compatibility and telemetry patch used by the English USAspending-to-OCDS case",
+  "adaptation_scope": "frozen compatibility and telemetry patch for this demonstration",
   "execution_status": "completed",
   "strategy": "five pairwise benchmarks",
   "models": {

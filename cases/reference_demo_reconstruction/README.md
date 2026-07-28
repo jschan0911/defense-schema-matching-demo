@@ -17,8 +17,8 @@ output is loaded only from `outputs/reference_demo/predictions.csv`, which was
 created from the five completed pinned rank artifacts.
 
 The pipeline uses official SCHEMORA commit
-`1339fedf8113fc3746d5664f1453248e47ee310c` plus the same fixed three-file
-compatibility/telemetry patch as the frozen English case. Its patch SHA-256 is
+`1339fedf8113fc3746d5664f1453248e47ee310c` plus a fixed three-file
+compatibility/telemetry patch. Its patch SHA-256 is
 `491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0`.
 Both values are enforced before input generation and execution.
 

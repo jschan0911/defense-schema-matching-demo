@@ -41,9 +41,7 @@ function statusLabel(status) {
 
 function kindLabel(kind) {
   return {
-    "international-standard": "CASE 01 · INTERNATIONAL STANDARD",
-    "screenshot-guided-reconstruction": "CASE 02 · OBSERVABLE REFERENCE COMPARISON",
-    "domestic-standardization": "CASE 03 · KOREAN STANDARDIZATION",
+    "screenshot-guided-reconstruction": "C2 DEMO · OBSERVABLE REFERENCE COMPARISON",
   }[kind] || kind;
 }
 
@@ -67,11 +65,39 @@ function renderCaseBrief() {
   $("#case-description").textContent = item.description;
   $("#case-status").textContent = statusLabel(item.status);
   $("#result-note").textContent = item.result_note;
-  const isReferenceCase = item.id === "reference-demo-reconstruction";
-  $("#result-mode").hidden = !isReferenceCase;
+  $("#result-mode").hidden = false;
   $("#result-mode").querySelectorAll("button").forEach((button) => {
     button.classList.toggle("active", button.dataset.mode === state.viewMode);
   });
+  renderScoreGuide();
+}
+
+function renderScoreGuide() {
+  const reference = state.viewMode === "reference";
+  $("#score-guide-kicker").textContent = reference
+    ? "REFERENCE DISPLAY RULE"
+    : "SCHEMORA DISPLAY RULE";
+  $("#score-guide-title").textContent = reference
+    ? "원 화면의 표시값을 그대로 보존"
+    : "검색 점수와 최종 순위를 분리해 표시";
+  const points = reference
+    ? [
+      "점수는 원 데모 화면에 보인 95·47 등의 숫자입니다. 산식·정규화·확률 보정 방식은 공개되지 않았습니다.",
+      "표시 등급은 원 화면의 구간(높음 ≥90, 중간 70–89, 낮음 <70)을 따릅니다. 모델 확률로 해석하지 않습니다.",
+      "9건은 화면에서 완전히 보인 후보만 기록한 읽기 전용 관찰값이며, 저장 정답이나 전체 16건을 뜻하지 않습니다.",
+    ]
+    : [
+      "표시 점수는 embedding vector score × 100을 반올림한 가독성용 값입니다. 확률이나 신뢰도가 아닙니다.",
+      "후보 순서는 표시 점수순이 아니라 SCHEMORA 최종 LLM 랭킹입니다. BM25와 원 vector 값은 ‘추천 근거’에서 확인합니다.",
+      "표시 등급은 규칙 기반입니다: 높음=1위이면서 embedding·BM25 모두 지지, 중간=3위 이내 또는 두 방식 모두 지지, 낮음=그 외.",
+    ];
+  $("#score-guide-points").replaceChildren(
+    ...points.map((text) => {
+      const item = document.createElement("li");
+      item.textContent = text;
+      return item;
+    }),
+  );
 }
 
 function renderSummary() {
@@ -161,7 +187,7 @@ async function loadRecommendations() {
   const status = encodeURIComponent($("#status").value);
   $("#notice").textContent = "추천을 불러오는 중입니다…";
   try {
-    if (state.viewMode === "reference" && state.caseId === "reference-demo-reconstruction") {
+    if (state.viewMode === "reference") {
       const payload = await api(caseQuery("/api/reference"));
       state.rows = payload.candidates.map((row) => ({
         id: `observable-${row.visible_order}`,
@@ -209,7 +235,7 @@ async function loadRecommendations() {
     if (!empty.hidden) {
       const item = currentCase();
       empty.innerHTML = ["schema-ready-not-run", "pipeline-ready-not-run"].includes(item.status)
-        ? `<strong>아직 ${item.id === "reference-demo-reconstruction" ? "SCHEMORA " : ""}추천 결과가 없습니다.</strong><p>${item.id === "reference-demo-reconstruction" ? "5개 온톨로지 입력과 고정 실행 파이프라인은 준비됐지만 변환된 실제 결과 파일이 없습니다. Reference 탭의 관찰값은 모델 결과가 아닙니다." : "공식 한글 Source·Target 스키마와 초안 정답지만 준비된 상태입니다."}</p>`
+        ? "<strong>아직 SCHEMORA 추천 결과가 없습니다.</strong><p>5개 온톨로지 입력과 고정 실행 파이프라인은 준비됐지만 변환된 실제 결과 파일이 없습니다. Reference 탭의 관찰값은 모델 결과가 아닙니다.</p>"
         : "<strong>조건에 맞는 추천이 없습니다.</strong><p>검색어나 상태 필터를 변경해보세요.</p>";
     }
     $("#notice").textContent = "";
@@ -220,7 +246,7 @@ async function loadRecommendations() {
 
 async function switchCase(caseId) {
   state.caseId = caseId;
-  state.viewMode = caseId === "reference-demo-reconstruction" ? "reference" : "schemora";
+  state.viewMode = "reference";
   state.selected.clear();
   $("#search").value = "";
   $("#status").value = "all";
@@ -285,9 +311,7 @@ async function init() {
     state.caseId = state.cases.some((item) => item.id === requestedCase)
       ? requestedCase
       : state.cases[0].id;
-    state.viewMode = state.caseId === "reference-demo-reconstruction"
-      ? (params.get("mode") === "schemora" ? "schemora" : "reference")
-      : "schemora";
+    state.viewMode = params.get("mode") === "schemora" ? "schemora" : "reference";
     renderCases();
     renderCaseBrief();
     await loadRecommendations();

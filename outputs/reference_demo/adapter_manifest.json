@@ -72,7 +72,7 @@
       "target_properties": 22
     }
   ],
-  "claim": "same pinned official-code adaptation as the frozen English case; execution status is recorded separately in run_manifest.json",
+  "claim": "pinned official-code adaptation for this demonstration; execution status is recorded separately in run_manifest.json",
   "dependency_lock": {
     "file": "requirements.txt",
     "sha256": "03b469cb401cef6a1bacc5719b2f75e5444cd5d72e2b299f31462681d8e90961"

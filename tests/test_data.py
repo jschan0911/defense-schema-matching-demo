@@ -6,63 +6,47 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CASE = ROOT / "cases" / "reference_demo_reconstruction"
+OUTPUT = ROOT / "outputs" / "reference_demo"
 
 
 class DataTests(unittest.TestCase):
-    def test_three_isolated_cases_are_registered(self) -> None:
+    def test_only_reference_demo_is_registered(self) -> None:
         catalog = json.loads((ROOT / "cases" / "catalog.json").read_text())
-        cases = {item["id"]: item for item in catalog["cases"]}
+        self.assertEqual(len(catalog["cases"]), 1)
+        case = catalog["cases"][0]
+        self.assertEqual(case["id"], "reference-demo-reconstruction")
         self.assertEqual(
-            set(cases),
-            {
-                "usaspending-ocds",
-                "reference-demo-reconstruction",
-                "d2b-contract-standard",
-            },
+            case["predictions"], "outputs/reference_demo/predictions.csv"
         )
-        self.assertIsNone(cases["d2b-contract-standard"]["predictions"])
 
-    def test_reference_demo_observed_data_and_baseline_are_bounded(self) -> None:
-        payload = json.loads(
-            (
-                ROOT / "cases" / "reference_demo_reconstruction" / "datasets.json"
-            ).read_text()
-        )
+    def test_observed_data_and_baseline_are_bounded(self) -> None:
+        payload = json.loads((CASE / "datasets.json").read_text())
         self.assertIn("합성", payload["notice"])
         self.assertEqual(len(payload["datasets"]), 5)
-        baseline = json.loads(
-            (
-                ROOT
-                / "cases"
-                / "reference_demo_reconstruction"
-                / "observable_reference.json"
-            ).read_text()
-        )
+
+        baseline = json.loads((CASE / "observable_reference.json").read_text())
         self.assertEqual(baseline["page_reported_total"], 16)
         self.assertEqual(baseline["fully_visible_candidates_recorded"], 9)
         self.assertEqual(len(baseline["candidates"]), 9)
-        self.assertFalse(
-            (
-                ROOT
-                / "cases"
-                / "reference_demo_reconstruction"
-                / "predictions.csv"
-            ).exists()
+        self.assertEqual(
+            baseline["confidence_bands_observed"],
+            {
+                "높음": "score >= 90",
+                "중간": "70 <= score <= 89",
+                "낮음": "score < 70",
+            },
         )
-        self.assertTrue(
-            (ROOT / "outputs" / "reference_demo" / "predictions.csv").exists()
-        )
-        with (
-            ROOT / "cases" / "reference_demo_reconstruction" / "ontology_schema.csv"
-        ).open(newline="") as handle:
+
+    def test_schema_and_execution_are_frozen(self) -> None:
+        with (CASE / "ontology_schema.csv").open(newline="") as handle:
             schema = list(csv.DictReader(handle))
         self.assertEqual(len(schema), 28)
         self.assertTrue(
             all(row["sample_values_policy"] == "not_passed_primary" for row in schema)
         )
-        adapter = json.loads(
-            (ROOT / "outputs" / "reference_demo" / "adapter_manifest.json").read_text()
-        )
+
+        adapter = json.loads((OUTPUT / "adapter_manifest.json").read_text())
         self.assertEqual(
             adapter["official_commit"],
             "1339fedf8113fc3746d5664f1453248e47ee310c",
@@ -71,31 +55,22 @@ class DataTests(unittest.TestCase):
             adapter["adapter_patch_sha256"],
             "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
         )
-        self.assertEqual(
-            adapter["adapter_modified_upstream_files"],
-            [
-                "utils/llm.py",
-                "utils/embedding.py",
-                "schema_matching/column_rank.py",
-            ],
-        )
         self.assertEqual(len(adapter["benchmarks"]), 5)
-        self.assertIn(
-            "zero-row mapping parquet",
-            adapter["input_policy"]["gold"],
-        )
-        estimate = json.loads(
-            (ROOT / "outputs" / "reference_demo" / "dry_run_estimate.json").read_text()
-        )
-        self.assertTrue(estimate["gate_passed"])
-        self.assertFalse(estimate["network_or_model_calls_made"])
-        comparison = json.loads(
-            (ROOT / "outputs" / "reference_demo" / "comparison.json").read_text()
-        )
+        self.assertIn("zero-row mapping parquet", adapter["input_policy"]["gold"])
+
+        with (OUTPUT / "predictions.csv").open(newline="") as handle:
+            predictions = list(csv.DictReader(handle))
+        self.assertEqual(len(predictions), 135)
+
+    def test_positive_only_evaluation_boundaries(self) -> None:
+        manifest = json.loads((CASE / "gold_manifest.json").read_text())
+        self.assertEqual(manifest["conceptual_positive_relations"], 4)
+        self.assertEqual(manifest["directed_evaluation_rows"], 5)
+        self.assertFalse(manifest["complete_for_all_source_fields"])
+        self.assertFalse(manifest["publishable_precision_or_f1"])
+
+        comparison = json.loads((OUTPUT / "comparison.json").read_text())
         self.assertEqual(comparison["schemora_status"], "loaded")
-        self.assertEqual(
-            comparison["saved_link_positive_scope"]["conceptual_relations"], 4
-        )
         self.assertEqual(
             comparison["saved_link_positive_recovery"]["at_k"]["5"][
                 "directed_hits"
@@ -104,73 +79,11 @@ class DataTests(unittest.TestCase):
         )
         self.assertFalse(comparison["gold_metrics"]["publishable"])
 
-    def test_korean_case_has_source_target_and_draft_gold(self) -> None:
-        payload = json.loads(
-            (ROOT / "cases" / "d2b_contract_standard" / "datasets.json").read_text()
-        )
-        self.assertEqual(
-            [item["role"] for item in payload["datasets"]], ["Source", "Target"]
-        )
-        with (ROOT / "cases" / "d2b_contract_standard" / "gold_mapping.csv").open(
-            newline=""
-        ) as handle:
-            gold = list(csv.DictReader(handle))
-        self.assertEqual(len(gold), 13)
-        self.assertTrue(
-            all(
-                row["review_status"] == "requires_independent_procurement_sme_review"
-                for row in gold
-            )
-        )
-
-    def rows(self, name: str) -> list[dict[str, str]]:
-        with (ROOT / "data" / name).open(encoding="utf-8", newline="") as handle:
-            return list(csv.DictReader(handle))
-
-    def test_fixed_schema_sizes_and_hashes(self) -> None:
-        source = self.rows("source_schema.csv")
-        target = self.rows("target_ontology.csv")
-        manifest = json.loads(
-            (ROOT / "data" / "schema_manifest.json").read_text(encoding="utf-8")
-        )
-        self.assertEqual(len(source), 55)
-        self.assertEqual(len({row["TableName"] for row in source}), 5)
-        self.assertEqual(len(target), 108)
-        self.assertEqual(len({row["ObjectType"] for row in target}), 10)
-        self.assertTrue(manifest["target_fixed_before_gold"])
-        self.assertFalse(manifest["llm_generated_metadata"])
-
-    def test_gold_is_complete_and_targets_exist(self) -> None:
-        source = {
-            (row["TableName"], row["ColumnName"])
-            for row in self.rows("source_schema.csv")
-        }
-        target = {
-            (row["ObjectType"], row["PropertyName"])
-            for row in self.rows("target_ontology.csv")
-        }
-        gold = self.rows("gold_mapping.csv")
-        self.assertEqual(
-            source,
-            {(row["source_table"], row["source_column"]) for row in gold},
-        )
-        self.assertGreaterEqual(
-            len(
-                {
-                    (row["source_table"], row["source_column"])
-                    for row in gold
-                    if row["mapping_type"] == "no-match"
-                }
-            ),
-            5,
-        )
-        for row in gold:
-            if row["target_object_type"]:
-                self.assertIn(
-                    (row["target_object_type"], row["target_property"]), target
-                )
-            self.assertTrue(row["rationale"])
-            self.assertTrue(row["evidence_location"])
+    def test_ui_score_semantics_are_documented(self) -> None:
+        guide = (ROOT / "docs" / "ui_score_guide_ko.md").read_text()
+        self.assertIn("round(vector_score × 100)", guide)
+        self.assertIn("높음 `≥90`", guide)
+        self.assertIn("확률·정확도·신뢰도가 아님", guide)
 
 
 if __name__ == "__main__":

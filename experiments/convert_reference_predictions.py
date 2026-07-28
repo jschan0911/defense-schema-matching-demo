@@ -10,14 +10,35 @@ import json
 from pathlib import Path
 from typing import Any
 
-from convert_predictions import grade, score_for, selected_ids
-
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "outputs" / "reference_demo" / "predictions.csv"
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def selected_ids(value: Any, top_k: int) -> list[int]:
+    if isinstance(value, (str, bytes)):
+        raise ValueError(f"unexpected selected_columns: {value!r}")
+    return [int(item) for item in list(value)[:top_k]]
+
+
+def score_for(group: Any, doc_id: int, method: str) -> str:
+    rows = group[(group["doc_id"] == doc_id) & group["q_type"].str.contains(method)]
+    if rows.empty:
+        return ""
+    return f"{float(rows['score'].max()):.8f}"
+
+
+def grade(rank: int, retrieval_methods: set[str]) -> str:
+    semantic = any("embedding" in item for item in retrieval_methods)
+    lexical = any("bm25" in item for item in retrieval_methods)
+    if rank == 1 and semantic and lexical:
+        return "High"
+    if rank <= 3 or (semantic and lexical):
+        return "Medium"
+    return "Low"
 
 
 def convert(frame: Any, top_k: int) -> list[dict[str, str | int]]:
@@ -108,6 +129,12 @@ def main() -> None:
         "rows": len(rows),
         "top_k": args.top_k,
         "score_warning": "vector/BM25 scores are not original-demo scores",
+        "ui_display_score": "round(vector_score * 100); readability only",
+        "grade_rule": {
+            "High": "rank 1 and supported by both embedding and BM25 retrieval",
+            "Medium": "rank <= 3 or supported by both retrieval families",
+            "Low": "all other returned candidates",
+        },
     }
     (args.output.parent / "prediction_conversion.json").write_text(
         json.dumps(metadata, ensure_ascii=False, indent=2, sort_keys=True) + "\n",

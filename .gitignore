@@ -5,7 +5,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
-ui/review.db
+*.db
 outputs/runtime/
 outputs/reference_demo/runtime/
 data/public/raw_award_rows/

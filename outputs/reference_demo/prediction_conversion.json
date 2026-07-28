@@ -26,8 +26,14 @@
       "sha256": "5830b61aa4c96313e67ad10b3bf318dc8bc4b1cec41ae88094de0472a23bbd0d"
     }
   ],
+  "grade_rule": {
+    "High": "rank 1 and supported by both embedding and BM25 retrieval",
+    "Low": "all other returned candidates",
+    "Medium": "rank <= 3 or supported by both retrieval families"
+  },
   "rows": 135,
   "score_warning": "vector/BM25 scores are not original-demo scores",
   "source": "five pinned SCHEMORA rank artifacts",
-  "top_k": 5
+  "top_k": 5,
+  "ui_display_score": "round(vector_score * 100); readability only"
 }

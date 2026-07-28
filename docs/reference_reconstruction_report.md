@@ -34,8 +34,8 @@ pairwise benchmarks:
 4. record values are not passed in the primary metadata-only configuration;
 5. every mapping parquet has zero rows, keeping saved-link positives out of
    retrieval, prompts, and annotations;
-6. the same official commit and the same three-file compatibility/telemetry
-   patch as the frozen English case are required; and
+6. the pinned official commit and the frozen three-file
+   compatibility/telemetry patch are required; and
 7. the five real rank artifacts are combined into
    `outputs/reference_demo/predictions.csv`.
 
@@ -124,3 +124,20 @@ negative labels, so precision and F1 remain withheld.
 
 Original-demo scores such as 95 and 47 are never numerically compared with
 SCHEMORA vector or BM25 scores.
+
+## UI display semantics
+
+The two UI surfaces use intentionally different display rules:
+
+- Reference scores and confidence labels are copied from the observable
+  screenshot. The visible bands are High `>=90`, Medium `70–89`, and Low
+  `<70`; the original formula and calibration remain unknown.
+- The SCHEMORA large-number display is
+  `round(vector_score * 100)` for readability. Candidate order follows the
+  final LLM ranking, not this number.
+- SCHEMORA rank grades are deterministic review aids: High means rank 1 with
+  both embedding and BM25 support; Medium means rank 1–3 or support from both;
+  Low covers all other returned candidates.
+
+No UI score or grade is reported as a calibrated probability. The complete
+Korean explanation is in `docs/ui_score_guide_ko.md`.

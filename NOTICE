@@ -1,14 +1,8 @@
-Defense Schema Matching Demo
+Synthetic C2 SCHEMORA Demonstration
 
-Source metadata is derived from USAspending.gov resources published by the
-U.S. Department of the Treasury, Bureau of the Fiscal Service. The
-USAspending code and data dictionary are made available under the CC0 1.0
-Universal Public Domain Dedication.
+The schema and record examples in this repository were transcribed from
+user-supplied screenshots of explicitly synthetic seminar data.
 
-Target metadata is derived from the Open Contracting Data Standard (OCDS)
-1.1.5 release schema, Copyright Open Contracting Partnership, licensed under
-the Apache License 2.0.
-
-SCHEMORA is not vendored. The experiment adapter references the official
-repository and pinned upstream commit.
-
+SCHEMORA is not vendored. The experiment references the official repository
+and a pinned upstream commit. No original product code, brand assets, or
+screenshots are redistributed as source data.

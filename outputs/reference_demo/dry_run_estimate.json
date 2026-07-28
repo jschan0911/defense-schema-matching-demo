@@ -11,14 +11,6 @@
     "observable_saved_positive_relations.csv": "ae0a731d5b9bf15e169201ae1320164c026bfefb4a95a8e77971130a92f0940c",
     "ontology_schema.csv": "c1ce4406821564e9ef8368b11c184b581f086455e2add545bfb676e74eb51abd"
   },
-  "limits_inherited_from_english_case": {
-    "cost_usd": 0.1944,
-    "elapsed_seconds": 2741.17,
-    "llm_calls": 992,
-    "source_properties": 80,
-    "target_properties": 150,
-    "total_tokens": 1428541
-  },
   "network_or_model_calls_made": false,
   "ontology_count": 5,
   "per_benchmark": [
@@ -32,12 +24,7 @@
       "estimated_llm_calls": 76,
       "estimated_output_tokens": 26412,
       "estimated_total_tokens": 135471,
-      "method": "official stage call formula plus 5% retry allowance; Synthea per-call tokens with 35% input-length safety multiplier",
-      "pricing_assumption_usd_per_million": {
-        "gpt-5-nano_input": 0.05,
-        "gpt-5-nano_output": 0.4,
-        "text-embedding-3-large_input": 0.13
-      },
+      "method": "official stage call formula plus 5% retry allowance and a 35% input-length safety multiplier",
       "source_queries": 8,
       "source_table": "작전명령",
       "target_properties": 20
@@ -52,12 +39,7 @@
       "estimated_llm_calls": 68,
       "estimated_output_tokens": 23632,
       "estimated_total_tokens": 121211,
-      "method": "official stage call formula plus 5% retry allowance; Synthea per-call tokens with 35% input-length safety multiplier",
-      "pricing_assumption_usd_per_million": {
-        "gpt-5-nano_input": 0.05,
-        "gpt-5-nano_output": 0.4,
-        "text-embedding-3-large_input": 0.13
-      },
+      "method": "official stage call formula plus 5% retry allowance and a 35% input-length safety multiplier",
       "source_queries": 4,
       "source_table": "아군_부대",
       "target_properties": 24
@@ -72,12 +54,7 @@
       "estimated_llm_calls": 68,
       "estimated_output_tokens": 23632,
       "estimated_total_tokens": 121211,
-      "method": "official stage call formula plus 5% retry allowance; Synthea per-call tokens with 35% input-length safety multiplier",
-      "pricing_assumption_usd_per_million": {
-        "gpt-5-nano_input": 0.05,
-        "gpt-5-nano_output": 0.4,
-        "text-embedding-3-large_input": 0.13
-      },
+      "method": "official stage call formula plus 5% retry allowance and a 35% input-length safety multiplier",
       "source_queries": 4,
       "source_table": "적군_부대",
       "target_properties": 24
@@ -92,12 +69,7 @@
       "estimated_llm_calls": 72,
       "estimated_output_tokens": 25022,
       "estimated_total_tokens": 128341,
-      "method": "official stage call formula plus 5% retry allowance; Synthea per-call tokens with 35% input-length safety multiplier",
-      "pricing_assumption_usd_per_million": {
-        "gpt-5-nano_input": 0.05,
-        "gpt-5-nano_output": 0.4,
-        "text-embedding-3-large_input": 0.13
-      },
+      "method": "official stage call formula plus 5% retry allowance and a 35% input-length safety multiplier",
       "source_queries": 6,
       "source_table": "교전규칙",
       "target_properties": 22
@@ -112,12 +84,7 @@
       "estimated_llm_calls": 72,
       "estimated_output_tokens": 25022,
       "estimated_total_tokens": 128341,
-      "method": "official stage call formula plus 5% retry allowance; Synthea per-call tokens with 35% input-length safety multiplier",
-      "pricing_assumption_usd_per_million": {
-        "gpt-5-nano_input": 0.05,
-        "gpt-5-nano_output": 0.4,
-        "text-embedding-3-large_input": 0.13
-      },
+      "method": "official stage call formula plus 5% retry allowance and a 35% input-length safety multiplier",
       "source_queries": 6,
       "source_table": "지형_정보",
       "target_properties": 22
@@ -134,6 +101,12 @@
     "warning": "actual billed usage and prices at execution time may differ"
   },
   "primary_input_policy": "schema metadata only; observed record values are not passed",
+  "project_local_budget_gate": {
+    "cost_usd": 0.1,
+    "elapsed_seconds": 1800,
+    "llm_calls": 500,
+    "total_tokens": 800000
+  },
   "strategy": "five pairwise runs; each source ontology is matched against the other four",
   "totals": {
     "base_llm_calls": 336.0,

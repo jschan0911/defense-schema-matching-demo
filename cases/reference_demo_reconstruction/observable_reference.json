@@ -4,7 +4,12 @@
   "page_reported_total": 16,
   "fully_visible_candidates_recorded": 9,
   "score_semantics": "unknown original-demo score; not comparable to SCHEMORA vector or BM25 scores",
-  "confidence_semantics": "visible categorical label only; original calibration is unknown",
+  "confidence_semantics": "visible categorical label derived from the displayed filter bands; original score calibration is unknown",
+  "confidence_bands_observed": {
+    "높음": "score >= 90",
+    "중간": "70 <= score <= 89",
+    "낮음": "score < 70"
+  },
   "candidates": [
     {
       "visible_order": 1,
