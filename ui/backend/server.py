@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local review API for three isolated schema-matching case studies."""
+"""Local review API for the synthetic C2 SCHEMORA demonstration."""
 
 from __future__ import annotations
 
@@ -85,14 +85,10 @@ class Store:
         return connection
 
     def reload(self) -> None:
-        if self.predictions_path is None:
+        if self.predictions_path is None or not self.predictions_path.exists():
             with self.lock:
                 self.rows = []
             return
-        if not self.predictions_path.exists():
-            raise FileNotFoundError(
-                f"prediction CSV not found: {self.predictions_path}"
-            )
         with self.gold_path.open(encoding="utf-8", newline="") as handle:
             gold_rows = list(csv.DictReader(handle))
         self.gold = {
@@ -243,6 +239,18 @@ class Handler(BaseHTTPRequestHandler):
             candidate.relative_to(ROOT.resolve())
             self.send_json(json.loads(candidate.read_text(encoding="utf-8")))
             return
+        if parsed.path == "/api/reference":
+            item = next(entry for entry in self.catalog if entry["id"] == case_id)
+            reference_path = item.get("reference_baseline")
+            if not reference_path:
+                self.send_json({"candidates": [], "available": False})
+                return
+            candidate = (ROOT / str(reference_path)).resolve()
+            candidate.relative_to(ROOT.resolve())
+            payload = json.loads(candidate.read_text(encoding="utf-8"))
+            payload["available"] = True
+            self.send_json(payload)
+            return
         self.serve_static(parsed.path)
 
     def do_POST(self) -> None:
@@ -297,16 +305,9 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--predictions",
-        type=Path,
-        default=ROOT / "outputs" / "predictions.csv",
-    )
-    parser.add_argument("--gold", type=Path, default=ROOT / "data" / "gold_mapping.csv")
     parser.add_argument("--db", type=Path, default=ROOT / "ui" / "review.db")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--demo", action="store_true")
     args = parser.parse_args()
     catalog_path = ROOT / "cases" / "catalog.json"
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))["cases"]
@@ -316,24 +317,19 @@ def main() -> None:
         predictions_value = item.get("predictions")
         predictions = ROOT / str(predictions_value) if predictions_value else None
         gold = ROOT / str(item["gold"])
-        if case_id == "usaspending-ocds":
-            if args.demo:
-                predictions = ROOT / "tests" / "fixtures" / "demo_predictions.csv"
-            elif args.predictions.exists():
-                predictions = args.predictions
-                item["status"] = "run-loaded"
-                item["result_note"] = (
-                    "로컬 outputs/predictions.csv에서 실제 실행 결과를 불러왔습니다."
-                )
-            if args.gold != ROOT / "data" / "gold_mapping.csv":
-                gold = args.gold
         stores[case_id] = Store(predictions, gold, args.db, case_id=case_id)
+        if predictions is not None and predictions.exists():
+            item["status"] = "schemora-results-loaded"
+            item["result_note"] = (
+                "실제 SCHEMORA 변환 CSV가 로드되었습니다. 관찰 기준선 점수와 "
+                "SCHEMORA 검색 점수는 서로 다른 척도로 표시됩니다."
+            )
     Handler.catalog = catalog
     Handler.stores = stores
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(
         f"Review interface: http://{args.host}:{args.port} "
-        f"({len(stores)} isolated cases)"
+        f"({len(stores)} demonstration case)"
     )
     server.serve_forever()
 

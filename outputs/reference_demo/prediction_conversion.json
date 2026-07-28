@@ -1,0 +1,39 @@
+{
+  "artifacts": [
+    {
+      "benchmark": "defense-reference-enemy-unit-v1",
+      "file": "column_rank_defense-reference-enemy-unit-v1_openai_model_name_gpt-5-nano_text-embedding-3-large_3_query_enrichment_true_document_enrichment_true_embedding_search_true_full_text_search_true_non_sim_prompt_true_table_selection_true.parquet",
+      "sha256": "2479ff4ec30e9d041eac307fa0ae9e45b72e6d804eb56b9afb939f7433995b0a"
+    },
+    {
+      "benchmark": "defense-reference-friendly-unit-v1",
+      "file": "column_rank_defense-reference-friendly-unit-v1_openai_model_name_gpt-5-nano_text-embedding-3-large_3_query_enrichment_true_document_enrichment_true_embedding_search_true_full_text_search_true_non_sim_prompt_true_table_selection_true.parquet",
+      "sha256": "f0dbcc0e0372c244a61f40c5f6168d7f2b26e29d89ff040f29339ea4ede271d4"
+    },
+    {
+      "benchmark": "defense-reference-operation-order-v1",
+      "file": "column_rank_defense-reference-operation-order-v1_openai_model_name_gpt-5-nano_text-embedding-3-large_3_query_enrichment_true_document_enrichment_true_embedding_search_true_full_text_search_true_non_sim_prompt_true_table_selection_true.parquet",
+      "sha256": "1e2019de39180e886ed5e9fecf83e2233b44b054c16061db4b8847e53b16d77b"
+    },
+    {
+      "benchmark": "defense-reference-rules-v1",
+      "file": "column_rank_defense-reference-rules-v1_openai_model_name_gpt-5-nano_text-embedding-3-large_3_query_enrichment_true_document_enrichment_true_embedding_search_true_full_text_search_true_non_sim_prompt_true_table_selection_true.parquet",
+      "sha256": "780fbd1e66d3e7462a9085c0fbf0f0da55ddf9ba62e5fdfcadc5a140cfeb3e2c"
+    },
+    {
+      "benchmark": "defense-reference-terrain-v1",
+      "file": "column_rank_defense-reference-terrain-v1_openai_model_name_gpt-5-nano_text-embedding-3-large_3_query_enrichment_true_document_enrichment_true_embedding_search_true_full_text_search_true_non_sim_prompt_true_table_selection_true.parquet",
+      "sha256": "5830b61aa4c96313e67ad10b3bf318dc8bc4b1cec41ae88094de0472a23bbd0d"
+    }
+  ],
+  "grade_rule": {
+    "High": "rank 1 and supported by both embedding and BM25 retrieval",
+    "Low": "all other returned candidates",
+    "Medium": "rank <= 3 or supported by both retrieval families"
+  },
+  "rows": 135,
+  "score_warning": "vector/BM25 scores are not original-demo scores",
+  "source": "five pinned SCHEMORA rank artifacts",
+  "top_k": 5,
+  "ui_display_score": "round(vector_score * 100); readability only"
+}

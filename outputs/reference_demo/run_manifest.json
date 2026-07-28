@@ -1,0 +1,19 @@
+{
+  "adapter_patch_sha256": "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
+  "benchmarks_completed": [
+    "defense-reference-operation-order-v1",
+    "defense-reference-friendly-unit-v1",
+    "defense-reference-enemy-unit-v1",
+    "defense-reference-rules-v1",
+    "defense-reference-terrain-v1"
+  ],
+  "comparison_sha256": "b789c8c455578f88df7b2668039f06443370c9b9dbcf48e209b99ab93573ca54",
+  "completed_at_utc": "2026-07-28T09:22:39.960342+00:00",
+  "embedding_model": "text-embedding-3-large",
+  "model": "gpt-5-nano",
+  "official_commit": "1339fedf8113fc3746d5664f1453248e47ee310c",
+  "postprocessing_completed": true,
+  "prediction_conversion_required": false,
+  "prediction_rows": 135,
+  "predictions_sha256": "85c505371d6181ae400eca74be6e4d60ee53498224b135e105a8fa0fc7a28611"
+}

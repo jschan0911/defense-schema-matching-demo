@@ -1,0 +1,435 @@
+{
+  "candidate_similarity": {
+    "at_k": {
+      "1": {
+        "jaccard": 0.07142857142857142,
+        "overlap_count": 1,
+        "reference_visible_count": 9,
+        "schemora_candidates_for_visible_sources": 6,
+        "visible_reference_recovery": 0.1111111111111111
+      },
+      "3": {
+        "jaccard": 0.08,
+        "overlap_count": 2,
+        "reference_visible_count": 9,
+        "schemora_candidates_for_visible_sources": 18,
+        "visible_reference_recovery": 0.2222222222222222
+      },
+      "5": {
+        "jaccard": 0.08333333333333333,
+        "overlap_count": 3,
+        "reference_visible_count": 9,
+        "schemora_candidates_for_visible_sources": 30,
+        "visible_reference_recovery": 0.3333333333333333
+      }
+    }
+  },
+  "comparison_claim": "screenshot-guided observable baseline versus pinned SCHEMORA implementation",
+  "feature_parity": {
+    "claim": "observable UI feature checklist; not algorithm parity",
+    "features": [
+      {
+        "feature": "five input dataset cards and record counts",
+        "implemented": "partial",
+        "note": "all five datasets and counts are available in one preview dialog, not persistent left-side cards",
+        "observed": true
+      },
+      {
+        "feature": "per-dataset table preview",
+        "implemented": true,
+        "note": "all fully visible rows are transcribed",
+        "observed": true
+      },
+      {
+        "feature": "four-stage integration/validation/COA flow",
+        "implemented": false,
+        "note": "not part of schema-link comparison and original agent logic is unavailable",
+        "observed": true
+      },
+      {
+        "feature": "named agent runtime status",
+        "implemented": false,
+        "note": "would falsely imply reconstruction of unavailable agents",
+        "observed": true
+      },
+      {
+        "feature": "scan summary and decision counts",
+        "implemented": true,
+        "note": "case-scoped pending, approved, and ignored counts",
+        "observed": true
+      },
+      {
+        "feature": "candidate search and status filter",
+        "implemented": true,
+        "note": "searches source, target, and explanation",
+        "observed": true
+      },
+      {
+        "feature": "high-confidence candidate selection",
+        "implemented": "partial",
+        "note": "reference confidence and SCHEMORA rank grade are kept separate; no shared threshold is asserted",
+        "observed": true
+      },
+      {
+        "feature": "bulk approval",
+        "implemented": true,
+        "note": "multi-select approval and ignore",
+        "observed": true
+      },
+      {
+        "feature": "per-candidate approve and ignore",
+        "implemented": true,
+        "note": "SQLite-backed review state",
+        "observed": true
+      },
+      {
+        "feature": "recommendation rationale",
+        "implemented": true,
+        "note": "visible reference text remains truncated; SCHEMORA trace is separately labeled",
+        "observed": true
+      },
+      {
+        "feature": "rescan/reload",
+        "implemented": true,
+        "note": "reloads the selected source file without initiating model calls",
+        "observed": true
+      }
+    ]
+  },
+  "gold_metrics": {
+    "publishable": false,
+    "reason": "withheld until a complete, independently reviewed all-source gold mapping is frozen",
+    "recall_precision_f1": null
+  },
+  "rank_similarity": {
+    "eligible_sources_with_two_or_more_common_candidates": 1,
+    "mean_correlation": 0.9999999999999998,
+    "method": "Spearman correlation (Pearson correlation of within-source ordinal ranks)",
+    "warning": "global reference scores are not compared with per-query SCHEMORA scores"
+  },
+  "reference_scope": {
+    "hidden_candidates_reconstructed": 0,
+    "page_reported_total": 16,
+    "visible_candidates": 9
+  },
+  "saved_link_positive_recovery": {
+    "at_k": {
+      "1": {
+        "conceptual_all_directions_recovery": 0.5,
+        "conceptual_any_direction_recovery": 0.5,
+        "conceptual_total": 4,
+        "directed_hits": 2,
+        "directed_recovery": 0.4,
+        "directed_total": 5
+      },
+      "3": {
+        "conceptual_all_directions_recovery": 0.75,
+        "conceptual_any_direction_recovery": 0.75,
+        "conceptual_total": 4,
+        "directed_hits": 3,
+        "directed_recovery": 0.6,
+        "directed_total": 5
+      },
+      "5": {
+        "conceptual_all_directions_recovery": 0.75,
+        "conceptual_any_direction_recovery": 1.0,
+        "conceptual_total": 4,
+        "directed_hits": 4,
+        "directed_recovery": 0.8,
+        "directed_total": 5
+      }
+    },
+    "claim": "positive-only recovery; unobserved pairs are not negatives, so precision and F1 are not computed",
+    "relations": [
+      {
+        "conceptual_relation_id": "saved-01",
+        "directed": [
+          {
+            "bm25_score": "",
+            "pair": {
+              "source_column": "applies_rule",
+              "source_table": "작전명령",
+              "target_column": "rule_id",
+              "target_table": "교전규칙"
+            },
+            "rank": 1,
+            "returned_candidates": [
+              {
+                "bm25_score": "",
+                "rank": 1,
+                "target_column": "rule_id",
+                "target_table": "교전규칙",
+                "vector_score": "0.59071583"
+              },
+              {
+                "bm25_score": "1.13787580",
+                "rank": 2,
+                "target_column": "rule_name",
+                "target_table": "교전규칙",
+                "vector_score": "0.62772745"
+              },
+              {
+                "bm25_score": "1.13787580",
+                "rank": 3,
+                "target_column": "condition",
+                "target_table": "교전규칙",
+                "vector_score": "0.56979454"
+              },
+              {
+                "bm25_score": "1.34655392",
+                "rank": 4,
+                "target_column": "priority",
+                "target_table": "교전규칙",
+                "vector_score": "0.65993482"
+              },
+              {
+                "bm25_score": "1.78658581",
+                "rank": 5,
+                "target_column": "rule_type",
+                "target_table": "교전규칙",
+                "vector_score": "0.61652482"
+              }
+            ],
+            "top_1": true,
+            "top_3": true,
+            "top_5": true,
+            "vector_score": "0.59071583"
+          }
+        ],
+        "direction": "directed"
+      },
+      {
+        "conceptual_relation_id": "saved-02",
+        "directed": [
+          {
+            "bm25_score": "1.59374774",
+            "pair": {
+              "source_column": "issued_to_unit",
+              "source_table": "작전명령",
+              "target_column": "unit_id",
+              "target_table": "아군_부대"
+            },
+            "rank": 1,
+            "returned_candidates": [
+              {
+                "bm25_score": "1.59374774",
+                "rank": 1,
+                "target_column": "unit_id",
+                "target_table": "아군_부대",
+                "vector_score": "0.77413464"
+              },
+              {
+                "bm25_score": "",
+                "rank": 2,
+                "target_column": "unit_name",
+                "target_table": "아군_부대",
+                "vector_score": "0.72758150"
+              },
+              {
+                "bm25_score": "",
+                "rank": 3,
+                "target_column": "available_firepower",
+                "target_table": "아군_부대",
+                "vector_score": "0.63182914"
+              },
+              {
+                "bm25_score": "1.89033604",
+                "rank": 4,
+                "target_column": "operation",
+                "target_table": "아군_부대",
+                "vector_score": "0.66422659"
+              },
+              {
+                "bm25_score": "1.42296696",
+                "rank": 5,
+                "target_column": "unit_id",
+                "target_table": "적군_부대",
+                "vector_score": "0.80491042"
+              }
+            ],
+            "top_1": true,
+            "top_3": true,
+            "top_5": true,
+            "vector_score": "0.77413464"
+          }
+        ],
+        "direction": "directed"
+      },
+      {
+        "conceptual_relation_id": "saved-03",
+        "directed": [
+          {
+            "bm25_score": "1.13787580",
+            "pair": {
+              "source_column": "target_terrain",
+              "source_table": "작전명령",
+              "target_column": "terrain_id",
+              "target_table": "지형_정보"
+            },
+            "rank": 2,
+            "returned_candidates": [
+              {
+                "bm25_score": "2.10961127",
+                "rank": 1,
+                "target_column": "key_terrain",
+                "target_table": "지형_정보",
+                "vector_score": "0.76881814"
+              },
+              {
+                "bm25_score": "1.13787580",
+                "rank": 2,
+                "target_column": "terrain_id",
+                "target_table": "지형_정보",
+                "vector_score": "0.62158549"
+              },
+              {
+                "bm25_score": "1.37877619",
+                "rank": 3,
+                "target_column": "terrain_type",
+                "target_table": "지형_정보",
+                "vector_score": "0.64701629"
+              },
+              {
+                "bm25_score": "1.13787580",
+                "rank": 4,
+                "target_column": "name",
+                "target_table": "지형_정보",
+                "vector_score": "0.58885580"
+              },
+              {
+                "bm25_score": "",
+                "rank": 5,
+                "target_column": "elevation",
+                "target_table": "지형_정보",
+                "vector_score": "0.58645999"
+              }
+            ],
+            "top_1": false,
+            "top_3": true,
+            "top_5": true,
+            "vector_score": "0.62158549"
+          }
+        ],
+        "direction": "directed"
+      },
+      {
+        "conceptual_relation_id": "saved-04",
+        "directed": [
+          {
+            "bm25_score": "2.08626938",
+            "pair": {
+              "source_column": "operation",
+              "source_table": "아군_부대",
+              "target_column": "operation",
+              "target_table": "적군_부대"
+            },
+            "rank": 5,
+            "returned_candidates": [
+              {
+                "bm25_score": "1.04857707",
+                "rank": 1,
+                "target_column": "operation_name",
+                "target_table": "작전명령",
+                "vector_score": "0.63587856"
+              },
+              {
+                "bm25_score": "1.68821990",
+                "rank": 2,
+                "target_column": "mission",
+                "target_table": "작전명령",
+                "vector_score": "0.82734811"
+              },
+              {
+                "bm25_score": "1.05087090",
+                "rank": 3,
+                "target_column": "operation_type",
+                "target_table": "작전명령",
+                "vector_score": "0.74774563"
+              },
+              {
+                "bm25_score": "1.47145832",
+                "rank": 4,
+                "target_column": "opord_id",
+                "target_table": "작전명령",
+                "vector_score": "0.89762557"
+              },
+              {
+                "bm25_score": "2.08626938",
+                "rank": 5,
+                "target_column": "operation",
+                "target_table": "적군_부대",
+                "vector_score": "0.67160642"
+              }
+            ],
+            "top_1": false,
+            "top_3": false,
+            "top_5": true,
+            "vector_score": "0.67160642"
+          },
+          {
+            "bm25_score": null,
+            "pair": {
+              "source_column": "operation",
+              "source_table": "적군_부대",
+              "target_column": "operation",
+              "target_table": "아군_부대"
+            },
+            "rank": null,
+            "returned_candidates": [
+              {
+                "bm25_score": "1.57687104",
+                "rank": 1,
+                "target_column": "unit_id",
+                "target_table": "아군_부대",
+                "vector_score": "0.54483271"
+              },
+              {
+                "bm25_score": "1.30421495",
+                "rank": 2,
+                "target_column": "unit_name",
+                "target_table": "아군_부대",
+                "vector_score": "0.51561415"
+              },
+              {
+                "bm25_score": "1.29258513",
+                "rank": 3,
+                "target_column": "target_terrain",
+                "target_table": "작전명령",
+                "vector_score": "0.60612011"
+              },
+              {
+                "bm25_score": "2.16978216",
+                "rank": 4,
+                "target_column": "operation_type",
+                "target_table": "작전명령",
+                "vector_score": "0.68653107"
+              },
+              {
+                "bm25_score": "1.82519841",
+                "rank": 5,
+                "target_column": "operation_name",
+                "target_table": "작전명령",
+                "vector_score": "0.59433955"
+              }
+            ],
+            "top_1": false,
+            "top_3": false,
+            "top_5": false,
+            "vector_score": null
+          }
+        ],
+        "direction": "bidirectional"
+      }
+    ]
+  },
+  "saved_link_positive_scope": {
+    "conceptual_relations": 4,
+    "directed_rows": 5,
+    "pipeline_injection": "none; SCHEMORA mapping parquets contain zero rows"
+  },
+  "schemora_status": "loaded",
+  "score_comparison": {
+    "performed": false,
+    "reason": "original-demo scores and SCHEMORA vector/BM25 scores have unknown, different semantics"
+  }
+}

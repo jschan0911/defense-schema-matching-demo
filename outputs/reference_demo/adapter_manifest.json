@@ -1,0 +1,96 @@
+{
+  "adapter_modified_upstream_files": [
+    "utils/llm.py",
+    "utils/embedding.py",
+    "schema_matching/column_rank.py"
+  ],
+  "adapter_patch_purpose": [
+    "gpt-5-nano request compatibility and token-usage telemetry",
+    "embedding client robustness and telemetry",
+    "rank-stage artifact/usage handling required by the frozen runner"
+  ],
+  "adapter_patch_sha256": "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
+  "benchmarks": [
+    {
+      "benchmark": "defense-reference-operation-order-v1",
+      "config": "config_defense-reference-operation-order-v1.toml",
+      "inputs": {
+        "raw_data/defense-reference-operation-order-v1/mapping/mapping.parquet": "a45f229323dc5d81ea1eb80f327bd9734889774241a1a6611e8702e540e271f4",
+        "raw_data/defense-reference-operation-order-v1/source/source.csv": "a1b3b2dd39eeb70ab42e29656393b4ec5ff52dddf8589d88c87115b78d0134f7",
+        "raw_data/defense-reference-operation-order-v1/target/target.csv": "c6a16a9220ca39b77854f2b6940c88d4067554dcc5510d8a2aa9d6bfad512c42"
+      },
+      "source_properties": 8,
+      "source_table": "작전명령",
+      "target_properties": 20
+    },
+    {
+      "benchmark": "defense-reference-friendly-unit-v1",
+      "config": "config_defense-reference-friendly-unit-v1.toml",
+      "inputs": {
+        "raw_data/defense-reference-friendly-unit-v1/mapping/mapping.parquet": "a45f229323dc5d81ea1eb80f327bd9734889774241a1a6611e8702e540e271f4",
+        "raw_data/defense-reference-friendly-unit-v1/source/source.csv": "a02b9870aa643c201522f2eaeb9f663466b825284b532094975e81c915072cac",
+        "raw_data/defense-reference-friendly-unit-v1/target/target.csv": "1f7f4f1b44632dbef16cdbd204d022a7f23b935021c80e86f8943ad564676c66"
+      },
+      "source_properties": 4,
+      "source_table": "아군_부대",
+      "target_properties": 24
+    },
+    {
+      "benchmark": "defense-reference-enemy-unit-v1",
+      "config": "config_defense-reference-enemy-unit-v1.toml",
+      "inputs": {
+        "raw_data/defense-reference-enemy-unit-v1/mapping/mapping.parquet": "a45f229323dc5d81ea1eb80f327bd9734889774241a1a6611e8702e540e271f4",
+        "raw_data/defense-reference-enemy-unit-v1/source/source.csv": "46f555d041302474fa16b81fb6bee144df1243461c32a9dbbb5b274862ac726d",
+        "raw_data/defense-reference-enemy-unit-v1/target/target.csv": "ec8393d4f88d27d112682160c85a1796cf8f8954e081f117ed00353cb7feadc3"
+      },
+      "source_properties": 4,
+      "source_table": "적군_부대",
+      "target_properties": 24
+    },
+    {
+      "benchmark": "defense-reference-rules-v1",
+      "config": "config_defense-reference-rules-v1.toml",
+      "inputs": {
+        "raw_data/defense-reference-rules-v1/mapping/mapping.parquet": "a45f229323dc5d81ea1eb80f327bd9734889774241a1a6611e8702e540e271f4",
+        "raw_data/defense-reference-rules-v1/source/source.csv": "875840ac686913c9c9029abe24de1acf9875f36bb8686a1b4aa589fb8678e864",
+        "raw_data/defense-reference-rules-v1/target/target.csv": "4f64145ddc8ec88625a9ffb2d0e8ac4a03848cbe772a234567ac4cf1ceabb354"
+      },
+      "source_properties": 6,
+      "source_table": "교전규칙",
+      "target_properties": 22
+    },
+    {
+      "benchmark": "defense-reference-terrain-v1",
+      "config": "config_defense-reference-terrain-v1.toml",
+      "inputs": {
+        "raw_data/defense-reference-terrain-v1/mapping/mapping.parquet": "a45f229323dc5d81ea1eb80f327bd9734889774241a1a6611e8702e540e271f4",
+        "raw_data/defense-reference-terrain-v1/source/source.csv": "0ead63d2e021d514aa6bd5fcedbdd6f5e9859709fb0799efa5f545e9e109ed2f",
+        "raw_data/defense-reference-terrain-v1/target/target.csv": "ee2e29391ba161c4acd973adcd5495fd98798e42feb5790d91368670f5056eba"
+      },
+      "source_properties": 6,
+      "source_table": "지형_정보",
+      "target_properties": 22
+    }
+  ],
+  "claim": "pinned official-code adaptation for this demonstration; execution status is recorded separately in run_manifest.json",
+  "dependency_lock": {
+    "file": "requirements.txt",
+    "sha256": "03b469cb401cef6a1bacc5719b2f75e5444cd5d72e2b299f31462681d8e90961"
+  },
+  "embedding_model": "text-embedding-3-large",
+  "input_policy": {
+    "gold": "zero-row mapping parquet; saved-link positives are external evaluation-only data",
+    "record_values": "not passed to the primary SCHEMORA run",
+    "same_ontology_candidates": "excluded by five pairwise benchmarks",
+    "schemas": "all 28 observed/normalized fields across five ontologies"
+  },
+  "limitations": [
+    "SCHEMORA ranks schema correspondences, while the reference UI proposes named ontology relations",
+    "the original demo model, prompt, score calibration, and hidden seven candidates are unavailable",
+    "precision and F1 are withheld until independent complete-gold review"
+  ],
+  "model": "gpt-5-nano",
+  "official_commit": "1339fedf8113fc3746d5664f1453248e47ee310c",
+  "official_repository": "https://github.com/schemorapaper/schemora",
+  "run_id": "defense_reference_demo_schemora_gpt5_nano_v1"
+}

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SCHEMORA Case Lab</title>
+    <title>SCHEMORA C2 실증</title>
     <meta
       name="description"
-      content="영문 기준선, 화면 기반 복구 데모, 한글 조달 표준화 사례를 분리해 검토하는 스키마 매칭 실증 UI"
+      content="화면에서 복구한 합성 C2 데이터와 실제 SCHEMORA 링크 후보를 비교·검토하는 실증 UI"
     />
     <link rel="stylesheet" href="/styles.css" />
   </head>
@@ -14,7 +14,7 @@
     <header class="topbar">
       <a class="brand" href="/" aria-label="SCHEMORA Case Lab 홈">
         <span class="brand-mark">S</span>
-        <span><b>SCHEMORA</b><small>CASE LAB</small></span>
+        <span><b>SCHEMORA</b><small>C2 DEMO LAB</small></span>
       </a>
       <div class="topbar-copy">
         <strong>스키마 링크 검토 워크벤치</strong>
@@ -23,7 +23,7 @@
       <div class="security-label">비운용 데이터</div>
     </header>
 
-    <nav class="case-strip" aria-label="실증 케이스">
+    <nav class="case-strip" aria-label="실증 범위">
       <div id="case-tabs" class="case-tabs"></div>
     </nav>
 
@@ -43,7 +43,7 @@
       <aside class="rail">
         <p class="rail-title">SCAN SUMMARY</p>
         <div class="review-count"><strong id="pending-count">0</strong><span id="total-count">/ 0</span></div>
-        <p class="muted">검토 대기</p>
+        <p id="summary-label" class="muted">검토 대기</p>
         <div id="decision-counts" class="decision-counts"></div>
 
         <div class="filter-block">
@@ -76,6 +76,10 @@
             <p class="eyebrow">LINK RECOMMENDATIONS</p>
             <strong id="shown-count">0건 표시</strong>
           </div>
+          <div id="result-mode" class="result-mode" hidden>
+            <button data-mode="reference" class="active">Reference · 관찰값</button>
+            <button data-mode="schemora">SCHEMORA 결과</button>
+          </div>
           <div class="bulk">
             <span id="selected-count">0건 선택</span>
             <button id="approve-selected">선택 승인</button>
@@ -83,10 +87,17 @@
           </div>
         </div>
         <div id="notice" role="status"></div>
+        <section id="score-guide" class="score-guide" aria-live="polite">
+          <div>
+            <span id="score-guide-kicker"></span>
+            <strong id="score-guide-title"></strong>
+          </div>
+          <ul id="score-guide-points"></ul>
+        </section>
         <div id="empty" class="empty" hidden></div>
         <div class="table-shell">
           <div class="table-head" aria-hidden="true">
-            <span></span><span>점수</span><span>From</span><span>링크</span><span>To</span><span>등급</span><span>추천 근거</span><span>액션</span>
+            <span></span><span>표시 점수</span><span>From</span><span>링크</span><span>To</span><span>표시 등급</span><span>추천 근거</span><span>액션</span>
           </div>
           <div id="rows" class="rows"></div>
         </div>
@@ -98,7 +109,7 @@
         <input class="select-row" type="checkbox" aria-label="추천 선택" />
         <div class="score">
           <strong></strong>
-          <small>검색 점수</small>
+          <small></small>
         </div>
         <div class="endpoint from">
           <strong></strong>

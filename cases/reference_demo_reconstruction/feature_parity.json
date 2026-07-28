@@ -1,0 +1,71 @@
+{
+  "claim": "observable UI feature checklist; not algorithm parity",
+  "features": [
+    {
+      "feature": "five input dataset cards and record counts",
+      "observed": true,
+      "implemented": "partial",
+      "note": "all five datasets and counts are available in one preview dialog, not persistent left-side cards"
+    },
+    {
+      "feature": "per-dataset table preview",
+      "observed": true,
+      "implemented": true,
+      "note": "all fully visible rows are transcribed"
+    },
+    {
+      "feature": "four-stage integration/validation/COA flow",
+      "observed": true,
+      "implemented": false,
+      "note": "not part of schema-link comparison and original agent logic is unavailable"
+    },
+    {
+      "feature": "named agent runtime status",
+      "observed": true,
+      "implemented": false,
+      "note": "would falsely imply reconstruction of unavailable agents"
+    },
+    {
+      "feature": "scan summary and decision counts",
+      "observed": true,
+      "implemented": true,
+      "note": "case-scoped pending, approved, and ignored counts"
+    },
+    {
+      "feature": "candidate search and status filter",
+      "observed": true,
+      "implemented": true,
+      "note": "searches source, target, and explanation"
+    },
+    {
+      "feature": "high-confidence candidate selection",
+      "observed": true,
+      "implemented": "partial",
+      "note": "reference confidence and SCHEMORA rank grade are kept separate; no shared threshold is asserted"
+    },
+    {
+      "feature": "bulk approval",
+      "observed": true,
+      "implemented": true,
+      "note": "multi-select approval and ignore"
+    },
+    {
+      "feature": "per-candidate approve and ignore",
+      "observed": true,
+      "implemented": true,
+      "note": "SQLite-backed review state"
+    },
+    {
+      "feature": "recommendation rationale",
+      "observed": true,
+      "implemented": true,
+      "note": "visible reference text remains truncated; SCHEMORA trace is separately labeled"
+    },
+    {
+      "feature": "rescan/reload",
+      "observed": true,
+      "implemented": true,
+      "note": "reloads the selected source file without initiating model calls"
+    }
+  ]
+}

@@ -1,8 +1,11 @@
 {
-  "notice": "제공된 화면을 바탕으로 전사한 세미나용 합성 데이터입니다. 실제 부대·임무·좌표를 포함하지 않습니다.",
+  "notice": "제공된 화면에서 완전히 보이는 셀만 전사한 세미나용 합성 데이터입니다. 실제 부대·임무·좌표를 포함하지 않습니다.",
+  "provenance_manifest": "source_images_manifest.json",
+  "transcription_status": "all listed headers and cells directly observed; English schema keys are separately marked as normalized",
   "datasets": [
     {
       "id": "operation-order",
+      "source_image_role": "operation_order_dataset",
       "name": "작전명령 (OPORD)",
       "format": "PDF 추출",
       "role": "Source",
@@ -15,6 +18,7 @@
     },
     {
       "id": "friendly-unit",
+      "source_image_role": "friendly_unit_dataset",
       "name": "아군 부대",
       "format": "XLSX 추출",
       "role": "Source",
@@ -27,6 +31,7 @@
     },
     {
       "id": "enemy-unit",
+      "source_image_role": "enemy_unit_dataset",
       "name": "적군 부대",
       "format": "XLSX 추출",
       "role": "Source",
@@ -39,6 +44,7 @@
     },
     {
       "id": "roe",
+      "source_image_role": "rules_dataset",
       "name": "교전규칙",
       "format": "PDF 추출",
       "role": "Target",
@@ -46,7 +52,7 @@
       "rows": [
         ["ROE-3.2", "민간인 보호", "ROE", "CRITICAL", "민간인 거주지역 1km 이내일 때", "중화기 사용 금지. 예외: 대대장 이상 승인"],
         ["ROE-4.1", "화력 우세 원칙", "ROE", "HIGH", "공격 작전일 때", "적 대비 화력비 3:1 이상 확보. 미달 시 방어/우회/화력증원"],
-        ["ROE-5.3", "보고 의무", "ROE", "HIGH", "교전 발생 시", "5분 이내 상급자 보고, 사상자 발생 시 즉시 보고"],
+        ["ROE-5.3", "보고 의무", "ROE", "HIGH", "교전 발생 시", "5분 이내 상급 보고, 사상자 발생 시 즉시 보고"],
         ["ROE-6.1", "비례성 원칙", "ROE", "HIGH", "무력 사용 시", "위협 수준에 비례한 무력만 사용"],
         ["SOP-MTN-007", "산악 기동", "SOP", "MEDIUM", "산악 능선 통과 시", "정찰조 200m 선행. 야간 GPS+나침반 이중 운용"],
         ["SOP-DEF-003", "방어진지 구축", "SOP", "MEDIUM", "방어작전 시", "주저항선 전방 장애물 우선 설치"]
@@ -54,6 +60,7 @@
     },
     {
       "id": "terrain",
+      "source_image_role": "terrain_dataset",
       "name": "지형 정보",
       "format": "PDF 추출",
       "role": "Target",
