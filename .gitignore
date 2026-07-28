@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+ui/review.db
+outputs/runtime/
+data/public/raw_award_rows/
+

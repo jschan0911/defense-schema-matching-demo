@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ontology Property Mapping Review</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <p class="eyebrow">Human-in-the-loop</p>
+        <h1>Ontology Property Mapping Review</h1>
+        <p class="subtitle">
+          Review ranked SCHEMORA recommendations from public defense contract metadata to OCDS.
+        </p>
+      </div>
+      <button id="reload" class="secondary">Reload results</button>
+    </header>
+
+    <section id="summary" class="summary" aria-label="Review summary"></section>
+
+    <section class="toolbar">
+      <label>
+        Search
+        <input id="search" type="search" placeholder="Source or target property" />
+      </label>
+      <label>
+        Status
+        <select id="status">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="ignored">Ignored</option>
+        </select>
+      </label>
+      <div class="bulk">
+        <span id="selected-count">0 selected</span>
+        <button id="approve-selected">Approve selected</button>
+        <button id="ignore-selected" class="danger">Ignore selected</button>
+      </div>
+    </section>
+
+    <main>
+      <div id="notice" role="status"></div>
+      <div id="cards" class="cards"></div>
+    </main>
+
+    <template id="card-template">
+      <article class="card">
+        <div class="card-head">
+          <input class="select-row" type="checkbox" aria-label="Select recommendation" />
+          <span class="rank"></span>
+          <span class="grade"></span>
+          <span class="state"></span>
+        </div>
+        <div class="mapping">
+          <div>
+            <span class="label">Source</span>
+            <strong class="source"></strong>
+          </div>
+          <span class="arrow">→</span>
+          <div>
+            <span class="label">Target</span>
+            <strong class="target"></strong>
+          </div>
+        </div>
+        <dl class="meta">
+          <div><dt>Mapping type</dt><dd class="mapping-type"></dd></div>
+          <div><dt>Retrieval</dt><dd class="retrieval"></dd></div>
+          <div><dt>Vector score</dt><dd class="vector"></dd></div>
+          <div><dt>BM25 score</dt><dd class="bm25"></dd></div>
+        </dl>
+        <details>
+          <summary>Recommendation reason and raw evidence</summary>
+          <p class="explanation"></p>
+          <div class="evidence-grid">
+            <div><span class="label">Source definition</span><p class="source-definition"></p></div>
+            <div><span class="label">Target definition</span><p class="target-definition"></p></div>
+          </div>
+        </details>
+        <div class="actions">
+          <button class="approve">Approve</button>
+          <button class="ignore danger">Ignore</button>
+          <button class="pending secondary">Reset pending</button>
+        </div>
+      </article>
+    </template>
+    <script src="/app.js"></script>
+  </body>
+</html>
+

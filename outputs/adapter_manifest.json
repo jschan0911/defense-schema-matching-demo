@@ -1,0 +1,23 @@
+{
+  "adapter_modified_upstream_files": [
+    "utils/llm.py",
+    "utils/embedding.py",
+    "schema_matching/column_rank.py"
+  ],
+  "adapter_patch_sha256": "491efc93e9672ed13387ccba6feedbfa6014886a4239de6dccfa38cdd663f7d0",
+  "claim": "official-code adaptation",
+  "config": "config_defense-usaspending-ocds-v1.toml",
+  "inputs": {
+    "raw_data/defense-usaspending-ocds-v1/mapping/mapping.parquet": "8b09a757a760103dd4e14da4a3e74109daade081f4566239e12ebee41b6cc412",
+    "raw_data/defense-usaspending-ocds-v1/source/source.csv": "e91773e28adc4bf45d1fde85b374ea8e75ff44d87fc61489d883cd402752f04d",
+    "raw_data/defense-usaspending-ocds-v1/target/target.csv": "ca524d27f496697fe886533faba2bfb1f79651cb9b8e9121bd2316d85264b077"
+  },
+  "limitations": [
+    "gpt-5-nano replaces the paper model",
+    "temperature escalation is unsupported",
+    "common complete-gold evaluator is authoritative"
+  ],
+  "official_commit": "1339fedf8113fc3746d5664f1453248e47ee310c",
+  "official_repository": "https://github.com/schemorapaper/schemora",
+  "run_id": "defense_usaspending_ocds_gpt5_nano_v1"
+}

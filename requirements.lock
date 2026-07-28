@@ -1,0 +1,4 @@
+# The demo repository's metadata, evaluation, and UI code use only Python's
+# standard library. The SCHEMORA runtime is external and its `pip freeze`
+# snapshot is captured as `outputs/dependency_freeze.txt` after the live run.
+

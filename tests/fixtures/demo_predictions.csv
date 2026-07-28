@@ -1,0 +1,5 @@
+run_id,source_table,source_column,rank,target_object_type,target_property,retrieval_methods,vector_score,bm25_score,selected_table,llm_rank,rank_grade,explanation,explanation_generator,source_definition,target_definition
+demo,ContractAward,solicitation_identifier,1,Tender,id,embedding_match|bm25_match,0.81,8.2,true,1,High,Demo-only deterministic explanation.,deterministic_template_v1,Identifier used to link transactions to solicitation information.,An identifier for this tender process.
+demo,RecipientOrganization,recipient_name,1,Organization,name,embedding_match|bm25_match,0.88,9.1,true,1,High,Demo-only deterministic explanation.,deterministic_template_v1,The legal name of the award recipient.,A name for this organization.
+demo,PlaceOfPerformance,primary_place_of_performance_city_name,2,Address,locality,embedding_match,0.73,,true,2,Medium,Demo-only deterministic explanation.,deterministic_template_v1,The city where predominant performance occurs.,The locality or city of the address.
+

@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d9e0eb;
+  --paper: #f5f7fb;
+  --card: #ffffff;
+  --blue: #155eef;
+  --blue-dark: #0b4bc5;
+  --green: #087443;
+  --red: #b42318;
+  --amber: #b54708;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); }
+header {
+  display: flex; justify-content: space-between; gap: 2rem; align-items: center;
+  padding: 2.5rem max(4vw, 1.5rem) 1.6rem; background: #0d1b2e; color: white;
+}
+h1 { margin: .1rem 0 .5rem; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.035em; }
+.eyebrow { margin: 0; color: #8db5ff; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
+.subtitle { margin: 0; color: #c9d4e6; max-width: 52rem; }
+button {
+  border: 0; border-radius: .55rem; padding: .7rem 1rem; color: white;
+  background: var(--blue); font-weight: 700; cursor: pointer;
+}
+button:hover { background: var(--blue-dark); }
+button.secondary { background: #e7ecf4; color: var(--ink); }
+header button.secondary { background: #233854; color: white; }
+button.danger { background: #fee4e2; color: var(--red); }
+.summary {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem;
+  padding: 1.2rem max(4vw, 1.5rem);
+}
+.metric { background: var(--card); padding: 1rem 1.2rem; border: 1px solid var(--line); border-radius: .8rem; }
+.metric span { color: var(--muted); font-size: .82rem; }
+.metric strong { display: block; margin-top: .25rem; font-size: 1.7rem; }
+.toolbar {
+  display: flex; align-items: end; gap: 1rem; flex-wrap: wrap;
+  padding: 0 max(4vw, 1.5rem) 1rem;
+}
+label { display: grid; gap: .35rem; color: var(--muted); font-size: .8rem; font-weight: 700; }
+input[type="search"], select {
+  min-width: 16rem; border: 1px solid var(--line); border-radius: .55rem;
+  padding: .7rem .8rem; background: white; color: var(--ink);
+}
+.bulk { margin-left: auto; display: flex; align-items: center; gap: .6rem; }
+.bulk span { color: var(--muted); font-size: .85rem; }
+main { padding: 0 max(4vw, 1.5rem) 3rem; }
+#notice { min-height: 1.4rem; color: var(--muted); margin-bottom: .5rem; }
+.cards { display: grid; gap: .9rem; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: .9rem; padding: 1rem 1.1rem; box-shadow: 0 2px 8px rgb(16 24 40 / 4%); }
+.card-head { display: flex; align-items: center; gap: .55rem; }
+.rank, .grade, .state { font-size: .75rem; font-weight: 800; border-radius: 999px; padding: .3rem .55rem; }
+.rank { background: #edf2ff; color: #3538cd; }
+.grade { background: #fff3e0; color: var(--amber); }
+.state { margin-left: auto; background: #eef2f6; color: var(--muted); text-transform: capitalize; }
+.state.approved { background: #dcfae6; color: var(--green); }
+.state.ignored { background: #fee4e2; color: var(--red); }
+.mapping { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin: 1rem 0; }
+.mapping > div { min-width: 0; }
+.label { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .68rem; font-weight: 800; margin-bottom: .25rem; }
+.mapping strong { overflow-wrap: anywhere; }
+.arrow { color: var(--blue); font-size: 1.4rem; }
+.meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 0 0 .8rem; }
+.meta div { background: #f8fafc; padding: .6rem; border-radius: .45rem; }
+dt { color: var(--muted); font-size: .7rem; }
+dd { margin: .2rem 0 0; font-size: .82rem; overflow-wrap: anywhere; }
+details { border-top: 1px solid var(--line); padding-top: .75rem; }
+summary { cursor: pointer; color: var(--blue); font-weight: 700; }
+.explanation, .evidence-grid p { color: #475467; line-height: 1.5; }
+.evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.actions { display: flex; gap: .55rem; margin-top: .8rem; }
+
+@media (max-width: 760px) {
+  header { align-items: flex-start; flex-direction: column; }
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .bulk { margin-left: 0; width: 100%; flex-wrap: wrap; }
+  .mapping { grid-template-columns: 1fr; }
+  .arrow { transform: rotate(90deg); justify-self: start; }
+  .meta, .evidence-grid { grid-template-columns: 1fr 1fr; }
+}
+

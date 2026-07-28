@@ -1,0 +1,16 @@
+{
+  "accessed_date": "2026-07-28",
+  "contains_raw_award_records": false,
+  "files": {
+    "ocds_release_schema_1_1_5.json": {
+      "bytes": 88144,
+      "sha256": "bf701ac26180756de4c4ada8a94a86a24174f3025345a8b99fda9927de896f80",
+      "url": "https://standard.open-contracting.org/schema/1__1__5/release-schema.json"
+    },
+    "usaspending_data_dictionary.json": {
+      "bytes": 358054,
+      "sha256": "3d0f2e3a952297050db5c2a4addf40765460a49d499427da1b57ef3c7edea3c3",
+      "url": "https://api.usaspending.gov/api/v2/references/data_dictionary/"
+    }
+  }
+}
