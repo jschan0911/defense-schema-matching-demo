@@ -1,7 +1,9 @@
-# Human-in-the-loop Ontology Property Mapping Review Interface
+# Human-in-the-loop Case Lab
 
-The UI reads the real `outputs/predictions.csv` by default and persists review
-state to SQLite. It never labels an uncalibrated score as a probability.
+The UI exposes three isolated cases from `cases/catalog.json` and persists
+review state to SQLite. It never labels an uncalibrated score as a probability.
+If `outputs/predictions.csv` exists, it replaces the English UI fixture only;
+the reconstructed and Korean cases remain isolated.
 
 ```bash
 python3 ui/backend/server.py
@@ -9,7 +11,7 @@ python3 ui/backend/server.py
 
 Open <http://127.0.0.1:8765>.
 
-For UI development only, an explicitly separate synthetic fixture is available:
+To force the English development fixture:
 
 ```bash
 python3 ui/backend/server.py --demo --db /tmp/defense-schema-demo-review.db
@@ -25,7 +27,6 @@ This grade is a deterministic display heuristic. It is not calibrated
 confidence.
 
 Approval, ignore, reset-to-pending, search, status filtering, multi-select
-approval, raw evidence display, and result reload are implemented. The
-`OntologySink` interface is separate, and the current sink is intentionally a
-mock that performs no ontology mutation.
-
+approval, case switching, five-dataset preview, raw evidence display, and
+result reload are implemented. The `OntologySink` interface is separate, and
+the current sink is intentionally a mock that performs no ontology mutation.

@@ -5,11 +5,56 @@ import json
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class DataTests(unittest.TestCase):
+    def test_three_isolated_cases_are_registered(self) -> None:
+        catalog = json.loads((ROOT / "cases" / "catalog.json").read_text())
+        cases = {item["id"]: item for item in catalog["cases"]}
+        self.assertEqual(
+            set(cases),
+            {
+                "usaspending-ocds",
+                "reference-demo-reconstruction",
+                "d2b-contract-standard",
+            },
+        )
+        self.assertIsNone(cases["d2b-contract-standard"]["predictions"])
+
+    def test_reference_demo_is_synthetic_and_complete(self) -> None:
+        payload = json.loads(
+            (
+                ROOT / "cases" / "reference_demo_reconstruction" / "datasets.json"
+            ).read_text()
+        )
+        self.assertIn("합성", payload["notice"])
+        self.assertEqual(len(payload["datasets"]), 5)
+        with (
+            ROOT / "cases" / "reference_demo_reconstruction" / "predictions.csv"
+        ).open(newline="") as handle:
+            predictions = list(csv.DictReader(handle))
+        self.assertEqual(len(predictions), 16)
+
+    def test_korean_case_has_source_target_and_draft_gold(self) -> None:
+        payload = json.loads(
+            (ROOT / "cases" / "d2b_contract_standard" / "datasets.json").read_text()
+        )
+        self.assertEqual(
+            [item["role"] for item in payload["datasets"]], ["Source", "Target"]
+        )
+        with (ROOT / "cases" / "d2b_contract_standard" / "gold_mapping.csv").open(
+            newline=""
+        ) as handle:
+            gold = list(csv.DictReader(handle))
+        self.assertEqual(len(gold), 13)
+        self.assertTrue(
+            all(
+                row["review_status"] == "requires_independent_procurement_sme_review"
+                for row in gold
+            )
+        )
+
     def rows(self, name: str) -> list[dict[str, str]]:
         with (ROOT / "data" / name).open(encoding="utf-8", newline="") as handle:
             return list(csv.DictReader(handle))

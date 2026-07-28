@@ -1,0 +1,14 @@
+source_table,source_column,target_object_type,target_property,mapping_type,difficulty,rationale,evidence_source,evidence_location,annotation_status,review_status
+국내_계약정보,cntrctDate,전국계약정보표준,cntrctCnclsDate,1:1,easy,계약일자는 계약이 성립된 계약체결일자에 대응한다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctNo,전국계약정보표준,cntrctNo,1:1,easy,양쪽 모두 계약서를 식별하는 계약번호이다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,dcsNo,,,no-match,no_match,판단번호와 직접 대응하는 표준 계약 필드가 확인되지 않았다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctNm,전국계약정보표준,cntrctNm,1:1,easy,양쪽 모두 계약 내용을 요약한 계약명이다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,ornt,전국계약정보표준,cntrctInsttNm,1:1,context,발주기관은 계약 주체 기관과 가장 가까우나 수요기관과의 구분은 전문가 검토가 필요하다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctMth,전국계약정보표준,cntrctCnclsMthdNm,1:1,easy,계약방법은 계약체결방법명에 대응한다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,bidMth,,,no-match,no_match,표준 계약정보 대상에는 입찰방법 전용 필드가 없다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctEntrpsNm,전국계약정보표준,rprsntCorpNm,1:1,context,계약업체명은 대표업체명과 대응하지만 공동계약 여부에 따라 범위가 달라질 수 있다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctSttus,,,no-match,no_match,대상 표준의 계약체결형태는 계약 진행상태와 동일하지 않다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctAmnt,전국계약정보표준,cntrctAmt,1:1,easy,양쪽 모두 해당 계약의 계약금액을 나타낸다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctPlanaAmnt,전국계약정보표준,rsrvtnPrce,1:1,context,D2B 예정가격은 표준의 예정가격 필드와 대응한다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctDivs,전국계약정보표준,bsnsDivNm,1:1,easy,업무구분은 물품·용역·공사 등 업무구분명에 대응한다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review
+국내_계약정보,cntrctBidnRate,,,no-match,no_match,대상 계약정보 표준에 낙찰률 전용 필드가 없다.,공공데이터포털 공식 OpenAPI 명세,D2B 국내 계약정보·전국계약정보표준,draft,requires_independent_procurement_sme_review

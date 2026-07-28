@@ -1,92 +1,148 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ontology Property Mapping Review</title>
+    <title>SCHEMORA Case Lab</title>
+    <meta
+      name="description"
+      content="영문 기준선, 화면 기반 복구 데모, 한글 조달 표준화 사례를 분리해 검토하는 스키마 매칭 실증 UI"
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <header>
-      <div>
-        <p class="eyebrow">Human-in-the-loop</p>
-        <h1>Ontology Property Mapping Review</h1>
-        <p class="subtitle">
-          Review ranked SCHEMORA recommendations from public defense contract metadata to OCDS.
-        </p>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SCHEMORA Case Lab 홈">
+        <span class="brand-mark">S</span>
+        <span><b>SCHEMORA</b><small>CASE LAB</small></span>
+      </a>
+      <div class="topbar-copy">
+        <strong>스키마 링크 검토 워크벤치</strong>
+        <span>공개·합성 메타데이터 전용</span>
       </div>
-      <button id="reload" class="secondary">Reload results</button>
+      <div class="security-label">비운용 데이터</div>
     </header>
 
-    <section id="summary" class="summary" aria-label="Review summary"></section>
+    <nav class="case-strip" aria-label="실증 케이스">
+      <div id="case-tabs" class="case-tabs"></div>
+    </nav>
 
-    <section class="toolbar">
-      <label>
-        Search
-        <input id="search" type="search" placeholder="Source or target property" />
-      </label>
-      <label>
-        Status
-        <select id="status">
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="ignored">Ignored</option>
-        </select>
-      </label>
-      <div class="bulk">
-        <span id="selected-count">0 selected</span>
-        <button id="approve-selected">Approve selected</button>
-        <button id="ignore-selected" class="danger">Ignore selected</button>
+    <section class="case-brief">
+      <div>
+        <p id="case-kind" class="eyebrow"></p>
+        <h1 id="case-title">케이스 불러오는 중</h1>
+        <p id="case-description"></p>
+      </div>
+      <div class="brief-actions">
+        <button id="open-datasets" class="secondary">데이터셋 보기</button>
+        <button id="reload">추천 다시 불러오기</button>
       </div>
     </section>
 
-    <main>
-      <div id="notice" role="status"></div>
-      <div id="cards" class="cards"></div>
-    </main>
+    <div class="workspace">
+      <aside class="rail">
+        <p class="rail-title">SCAN SUMMARY</p>
+        <div class="review-count"><strong id="pending-count">0</strong><span id="total-count">/ 0</span></div>
+        <p class="muted">검토 대기</p>
+        <div id="decision-counts" class="decision-counts"></div>
 
-    <template id="card-template">
-      <article class="card">
-        <div class="card-head">
-          <input class="select-row" type="checkbox" aria-label="Select recommendation" />
-          <span class="rank"></span>
-          <span class="grade"></span>
-          <span class="state"></span>
+        <div class="filter-block">
+          <h2>상태 필터</h2>
+          <label class="sr-only" for="status">상태</label>
+          <select id="status">
+            <option value="all">전체</option>
+            <option value="pending">대기 중</option>
+            <option value="approved">승인됨</option>
+            <option value="ignored">무시됨</option>
+          </select>
         </div>
-        <div class="mapping">
+
+        <div class="filter-block">
+          <h2>검색</h2>
+          <label class="sr-only" for="search">추천 링크 검색</label>
+          <input id="search" type="search" placeholder="필드 또는 설명" />
+        </div>
+
+        <div class="scope-note">
+          <span>평가 상태</span>
+          <strong id="case-status">—</strong>
+          <p id="result-note"></p>
+        </div>
+      </aside>
+
+      <main>
+        <div class="recommendation-toolbar">
           <div>
-            <span class="label">Source</span>
-            <strong class="source"></strong>
+            <p class="eyebrow">LINK RECOMMENDATIONS</p>
+            <strong id="shown-count">0건 표시</strong>
           </div>
-          <span class="arrow">→</span>
-          <div>
-            <span class="label">Target</span>
-            <strong class="target"></strong>
+          <div class="bulk">
+            <span id="selected-count">0건 선택</span>
+            <button id="approve-selected">선택 승인</button>
+            <button id="ignore-selected" class="secondary">선택 무시</button>
           </div>
         </div>
-        <dl class="meta">
-          <div><dt>Mapping type</dt><dd class="mapping-type"></dd></div>
-          <div><dt>Retrieval</dt><dd class="retrieval"></dd></div>
-          <div><dt>Vector score</dt><dd class="vector"></dd></div>
-          <div><dt>BM25 score</dt><dd class="bm25"></dd></div>
-        </dl>
-        <details>
-          <summary>Recommendation reason and raw evidence</summary>
-          <p class="explanation"></p>
-          <div class="evidence-grid">
-            <div><span class="label">Source definition</span><p class="source-definition"></p></div>
-            <div><span class="label">Target definition</span><p class="target-definition"></p></div>
+        <div id="notice" role="status"></div>
+        <div id="empty" class="empty" hidden></div>
+        <div class="table-shell">
+          <div class="table-head" aria-hidden="true">
+            <span></span><span>점수</span><span>From</span><span>링크</span><span>To</span><span>등급</span><span>추천 근거</span><span>액션</span>
+          </div>
+          <div id="rows" class="rows"></div>
+        </div>
+      </main>
+    </div>
+
+    <template id="row-template">
+      <article class="link-row">
+        <input class="select-row" type="checkbox" aria-label="추천 선택" />
+        <div class="score">
+          <strong></strong>
+          <small>검색 점수</small>
+        </div>
+        <div class="endpoint from">
+          <strong></strong>
+          <span></span>
+        </div>
+        <div class="link-name">
+          <strong></strong>
+          <span>↗ 링크</span>
+        </div>
+        <div class="endpoint to">
+          <strong></strong>
+          <span></span>
+        </div>
+        <span class="grade"></span>
+        <details class="reason">
+          <summary></summary>
+          <div class="evidence">
+            <p class="explanation"></p>
+            <p><b>Source</b><span class="source-definition"></span></p>
+            <p><b>Target</b><span class="target-definition"></span></p>
+            <p class="raw-scores"></p>
           </div>
         </details>
         <div class="actions">
-          <button class="approve">Approve</button>
-          <button class="ignore danger">Ignore</button>
-          <button class="pending secondary">Reset pending</button>
+          <button class="ignore secondary" title="이 추천을 무시">무시</button>
+          <button class="approve" title="이 추천을 승인">승인</button>
+          <button class="pending ghost" title="검토 대기로 되돌리기">되돌림</button>
         </div>
       </article>
     </template>
+
+    <dialog id="dataset-dialog">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">CASE DATA</p>
+          <h2 id="dataset-title">데이터셋 미리보기</h2>
+        </div>
+        <button id="close-datasets" class="secondary" aria-label="닫기">닫기</button>
+      </div>
+      <p id="dataset-notice" class="dataset-notice"></p>
+      <div id="dataset-tabs" class="dataset-tabs" role="tablist"></div>
+      <div id="dataset-content"></div>
+    </dialog>
+
     <script src="/app.js"></script>
   </body>
 </html>
-

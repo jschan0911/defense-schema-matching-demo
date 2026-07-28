@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local review API and static server for real SCHEMORA prediction CSVs."""
+"""Local review API for three isolated schema-matching case studies."""
 
 from __future__ import annotations
 
@@ -15,8 +15,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Protocol
-from urllib.parse import parse_qs, urlparse
-
+from urllib.parse import ParseResult, parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND = ROOT / "ui" / "frontend"
@@ -53,7 +52,14 @@ class MockOntologySink:
 
 
 class Store:
-    def __init__(self, predictions: Path, gold: Path, database: Path) -> None:
+    def __init__(
+        self,
+        predictions: Path | None,
+        gold: Path,
+        database: Path,
+        case_id: str = "default",
+    ) -> None:
+        self.case_id = case_id
         self.predictions_path = predictions
         self.gold_path = gold
         self.database = database
@@ -79,10 +85,13 @@ class Store:
         return connection
 
     def reload(self) -> None:
+        if self.predictions_path is None:
+            with self.lock:
+                self.rows = []
+            return
         if not self.predictions_path.exists():
             raise FileNotFoundError(
-                f"prediction CSV not found: {self.predictions_path}. "
-                "Run SCHEMORA or start with --demo."
+                f"prediction CSV not found: {self.predictions_path}"
             )
         with self.gold_path.open(encoding="utf-8", newline="") as handle:
             gold_rows = list(csv.DictReader(handle))
@@ -150,7 +159,7 @@ class Store:
             raise ValueError(f"invalid status: {status}")
         valid = {row["id"] for row in self.rows}
         chosen = [identifier for identifier in identifiers if identifier in valid]
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc).isoformat()  # noqa: UP017 — Python 3.9 fallback
         with self.connect() as connection:
             connection.executemany(
                 """
@@ -165,8 +174,22 @@ class Store:
 
 
 class Handler(BaseHTTPRequestHandler):
-    store: Store
+    catalog: list[dict[str, object]]
+    stores: dict[str, Store]
     sink: OntologySink = MockOntologySink()
+
+    def case_id(self, parsed: ParseResult) -> str:
+        query = parse_qs(parsed.query)
+        requested = query.get("case", [""])[0]
+        if requested in self.stores:
+            return requested
+        return str(self.catalog[0]["id"])
+
+    def store_for(self, case_id: str) -> Store:
+        try:
+            return self.stores[case_id]
+        except KeyError as error:
+            raise ValueError(f"unknown case: {case_id}") from error
 
     def send_json(self, payload: object, status: int = 200) -> None:
         data = json.dumps(payload, ensure_ascii=False).encode()
@@ -182,10 +205,21 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("request body too large")
         return json.loads(self.rfile.read(length) or b"{}")
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/api/cases":
+            payload = []
+            for item in self.catalog:
+                case_id = str(item["id"])
+                enriched = dict(item)
+                enriched["summary"] = self.stores[case_id].summary()
+                payload.append(enriched)
+            self.send_json({"cases": payload})
+            return
+        case_id = self.case_id(parsed)
+        store = self.store_for(case_id)
         if parsed.path == "/api/summary":
-            self.send_json(self.store.summary())
+            self.send_json(store.summary())
             return
         if parsed.path == "/api/candidates":
             params = parse_qs(parsed.query)
@@ -196,28 +230,40 @@ class Handler(BaseHTTPRequestHandler):
                 return
             limit = min(max(int(params.get("limit", ["200"])[0]), 1), 1000)
             offset = max(int(params.get("offset", ["0"])[0]), 0)
-            rows, total = self.store.candidates(query, status, limit, offset)
+            rows, total = store.candidates(query, status, limit, offset)
             self.send_json({"rows": rows, "filtered_total": total})
+            return
+        if parsed.path == "/api/datasets":
+            item = next(entry for entry in self.catalog if entry["id"] == case_id)
+            preview_path = item.get("dataset_preview")
+            if not preview_path:
+                self.send_json({"notice": "", "datasets": []})
+                return
+            candidate = (ROOT / str(preview_path)).resolve()
+            candidate.relative_to(ROOT.resolve())
+            self.send_json(json.loads(candidate.read_text(encoding="utf-8")))
             return
         self.serve_static(parsed.path)
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         try:
             payload = self.read_json()
+            case_id = str(payload.get("case_id", self.catalog[0]["id"]))
+            store = self.store_for(case_id)
             if self.path == "/api/reviews":
                 identifiers = payload.get("ids", [])
                 status = str(payload.get("status", ""))
                 if not isinstance(identifiers, list):
                     raise ValueError("ids must be a list")
-                count = self.store.review([str(item) for item in identifiers], status)
-                self.send_json({"updated": count, "summary": self.store.summary()})
+                count = store.review([str(item) for item in identifiers], status)
+                self.send_json({"updated": count, "summary": store.summary()})
                 return
             if self.path == "/api/reload":
-                self.store.reload()
-                self.send_json({"reloaded": True, "summary": self.store.summary()})
+                store.reload()
+                self.send_json({"reloaded": True, "summary": store.summary()})
                 return
             if self.path == "/api/apply":
-                rows, _ = self.store.candidates("", "approved", 1000, 0)
+                rows, _ = store.candidates("", "approved", 1000, 0)
                 self.send_json(self.sink.apply(rows))
                 return
             self.send_json({"error": "not found"}, 404)
@@ -262,16 +308,32 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--demo", action="store_true")
     args = parser.parse_args()
-    predictions = (
-        ROOT / "tests" / "fixtures" / "demo_predictions.csv"
-        if args.demo
-        else args.predictions
-    )
-    Handler.store = Store(predictions, args.gold, args.db)
+    catalog_path = ROOT / "cases" / "catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))["cases"]
+    stores: dict[str, Store] = {}
+    for item in catalog:
+        case_id = str(item["id"])
+        predictions_value = item.get("predictions")
+        predictions = ROOT / str(predictions_value) if predictions_value else None
+        gold = ROOT / str(item["gold"])
+        if case_id == "usaspending-ocds":
+            if args.demo:
+                predictions = ROOT / "tests" / "fixtures" / "demo_predictions.csv"
+            elif args.predictions.exists():
+                predictions = args.predictions
+                item["status"] = "run-loaded"
+                item["result_note"] = (
+                    "로컬 outputs/predictions.csv에서 실제 실행 결과를 불러왔습니다."
+                )
+            if args.gold != ROOT / "data" / "gold_mapping.csv":
+                gold = args.gold
+        stores[case_id] = Store(predictions, gold, args.db, case_id=case_id)
+    Handler.catalog = catalog
+    Handler.stores = stores
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(
         f"Review interface: http://{args.host}:{args.port} "
-        f"({'DEMO fixture' if args.demo else 'REAL predictions'})"
+        f"({len(stores)} isolated cases)"
     )
     server.serve_forever()
 

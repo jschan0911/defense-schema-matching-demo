@@ -1,0 +1,29 @@
+{
+  "claim": "deterministic reconstruction sanity check; not original-demo performance",
+  "gold_status": "screenshot_transcription_not_sme_reviewed",
+  "answerable_sources": 6,
+  "prediction_sources": 11,
+  "at_k": {
+    "1": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "pair_f1": 1.0,
+      "correct_pairs": 6,
+      "predicted_pairs": 6
+    },
+    "3": {
+      "recall": 1.0,
+      "precision": 0.6,
+      "pair_f1": 0.75,
+      "correct_pairs": 6,
+      "predicted_pairs": 10
+    },
+    "5": {
+      "recall": 1.0,
+      "precision": 0.6,
+      "pair_f1": 0.75,
+      "correct_pairs": 6,
+      "predicted_pairs": 10
+    }
+  }
+}

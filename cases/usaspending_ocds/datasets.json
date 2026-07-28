@@ -1,0 +1,29 @@
+{
+  "notice": "공개 스키마 메타데이터만 표시합니다. 실제 계약 레코드는 포함하지 않습니다.",
+  "datasets": [
+    {
+      "id": "source",
+      "name": "USAspending DoD",
+      "format": "CSV metadata",
+      "role": "Source",
+      "columns": ["테이블", "필드", "정의"],
+      "rows": [
+        ["ContractAward", "solicitation_identifier", "Identifier used to link transactions to solicitation information."],
+        ["RecipientOrganization", "recipient_name", "The legal name of the award recipient."],
+        ["PlaceOfPerformance", "primary_place_of_performance_city_name", "The city where predominant performance occurs."]
+      ]
+    },
+    {
+      "id": "target",
+      "name": "OCDS 1.1.5",
+      "format": "JSON Schema",
+      "role": "Target",
+      "columns": ["객체", "속성", "정의"],
+      "rows": [
+        ["Tender", "id", "An identifier for this tender process."],
+        ["Organization", "name", "A name for this organization."],
+        ["Address", "locality", "The locality or city of the address."]
+      ]
+    }
+  ]
+}

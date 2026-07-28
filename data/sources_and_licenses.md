@@ -43,4 +43,23 @@ is included.
 
 Result: suitable for a private GitHub case-study repository. A transition to
 public visibility still requires the final audit in `docs/limitations.md`.
+# Additional Korean schema sources
+
+- DAPA D2B contract information:
+  <https://www.data.go.kr/data/15158419/openapi.do>
+- Public Procurement Service public-data open-standard service:
+  <https://www.data.go.kr/data/15058815/openapi.do>
+- Nationwide contract-information standard data:
+  <https://www.data.go.kr/data/15023680/standard.do>
+
+Only the public API field keys, Korean descriptions, data types, and provenance
+are retained. No service key or response record is committed.
+
+# User-supplied reference screenshots
+
+Six screenshots supplied in the private working session were used only to
+transcribe the explicitly labeled seminar-only synthetic tables and observable
+review workflow. The screenshots and their AOS branding are not redistributed.
+No license or access to the original code or model was provided, so the result
+is documented as a screenshot-guided reconstruction.
 
