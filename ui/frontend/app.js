@@ -79,7 +79,9 @@ function renderScoreGuide() {
     : "SCHEMORA DISPLAY RULE";
   $("#score-guide-title").textContent = reference
     ? "원 화면의 표시값을 그대로 보존"
-    : "검색 점수와 최종 순위를 분리해 표시";
+    : "세 신호를 RRF로 결합한 전역 검토 우선순위";
+  $("#score-column-label").textContent = reference ? "표시 점수" : "RRF 우선순위";
+  $("#grade-column-label").textContent = reference ? "표시 등급" : "신호 합의";
   const points = reference
     ? [
       "점수는 원 데모 화면에 보인 95·47 등의 숫자입니다. 산식·정규화·확률 보정 방식은 공개되지 않았습니다.",
@@ -87,9 +89,9 @@ function renderScoreGuide() {
       "9건은 화면에서 완전히 보인 후보만 기록한 읽기 전용 관찰값이며, 저장 정답이나 전체 16건을 뜻하지 않습니다.",
     ]
     : [
-      "표시 점수는 embedding vector score × 100을 반올림한 가독성용 값입니다. 확률이나 신뢰도가 아닙니다.",
-      "후보 순서는 표시 점수순이 아니라 SCHEMORA 최종 LLM 랭킹입니다. BM25와 원 vector 값은 ‘추천 근거’에서 확인합니다.",
-      "표시 등급은 규칙 기반입니다: 높음=1위이면서 embedding·BM25 모두 지지, 중간=3위 이내 또는 두 방식 모두 지지, 낮음=그 외.",
+      "후보는 LLM·Vector·BM25의 질의 내 순위를 동일 가중치 RRF(k=60)로 결합한 점수 내림차순입니다.",
+      "Vector와 BM25 원점수는 단위가 달라 직접 합산하지 않습니다. 검색 결과에 없는 신호의 RRF 기여는 0입니다.",
+      "RRF 값은 정확도나 신뢰확률이 아닙니다. 같은 순위 패턴은 공동순위이며, 링크 이름·타입은 예측하지 않습니다.",
     ];
   $("#score-guide-points").replaceChildren(
     ...points.map((text) => {
@@ -130,32 +132,36 @@ async function review(ids, status) {
 
 function scoreFor(row) {
   if (row.reference) return row.original_score;
-  const numeric = Number.parseFloat(row.vector_score);
-  return Number.isFinite(numeric) ? Math.round(numeric * 100) : "—";
+  const numeric = Number.parseFloat(row.global_priority_score);
+  return Number.isFinite(numeric) ? numeric.toFixed(1) : "—";
 }
 
 function linkLabel(row) {
-  if (row.link_name) return row.link_name;
-  const source = row.source_column.replaceAll("_", " ");
-  const target = row.target_property.replaceAll("_", " ");
-  return source === target ? "동일 의미" : `${source} 연결`;
+  return row.reference && row.link_name ? row.link_name : "링크명 미지정";
 }
 
 function makeRow(row) {
   const element = $("#row-template").content.firstElementChild.cloneNode(true);
   element.dataset.status = row.status;
   element.querySelector(".score strong").textContent = scoreFor(row);
-  element.querySelector(".score small").textContent = row.reference ? "원 데모 점수" : "검색 점수";
+  element.querySelector(".score small").textContent = row.reference
+    ? "원 데모 점수"
+    : `검토 #${row.global_priority_rank}`;
   element.querySelector(".from strong").textContent = row.source_column;
   element.querySelector(".from span").textContent = row.source_table;
   element.querySelector(".to strong").textContent = row.target_property;
   element.querySelector(".to span").textContent = row.target_object_type;
   element.querySelector(".link-name strong").textContent = linkLabel(row);
+  element.querySelector(".link-name span").textContent = row.reference
+    ? "↗ 관찰 링크"
+    : "↗ 필드 후보";
   const grade = element.querySelector(".grade");
   grade.textContent = row.reference
     ? row.reference_confidence
-    : ({ High: "높음", Medium: "중간", Low: "낮음" }[row.rank_grade] || row.rank_grade);
-  grade.dataset.grade = row.rank_grade.toLowerCase();
+    : `${row.contributing_signals}/3 신호`;
+  grade.dataset.grade = row.reference
+    ? row.rank_grade.toLowerCase()
+    : ({ 3: "high", 2: "medium", 1: "low" }[row.contributing_signals] || "low");
   const summary = element.querySelector(".reason summary");
   summary.textContent = row.explanation || "추천 근거 보기";
   element.querySelector(".explanation").textContent = row.explanation || "설명이 없습니다.";
@@ -163,7 +169,7 @@ function makeRow(row) {
   element.querySelector(".target-definition").textContent = row.target_definition || "—";
   element.querySelector(".raw-scores").textContent = row.reference
     ? `화면 표시 순서 ${row.rank} · 원 데모 점수 ${row.original_score} · 점수 산식과 보정 방식은 공개되지 않음`
-    : `쿼리 내 순위 ${row.rank} · 검색 방식 ${row.retrieval_methods || "—"} · vector ${row.vector_score || "—"} · BM25 ${row.bm25_score || "—"} · 원 데모 점수와 직접 비교 불가`;
+    : `표시 순번 ${row.display_order} · 공동 검토 순위 ${row.global_priority_rank} · RRF ${row.global_priority_score} · LLM 질의 순위 ${row.llm_query_rank} · vector ${row.vector_score || "—"} (#${row.vector_query_rank || "—"}) · BM25 ${row.bm25_score || "—"} (#${row.bm25_query_rank || "—"}) · 정확도·신뢰확률이 아님`;
 
   const checkbox = element.querySelector(".select-row");
   checkbox.checked = state.selected.has(row.id);

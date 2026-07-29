@@ -1,161 +1,170 @@
-# SCHEMORA 전체 매칭 결과 — 순위별 정렬
+# SCHEMORA 전체 매칭 결과 — RRF 전역 검토 우선순위
 
-실제 SCHEMORA 실행에서 반환된 후보 **135건 전체**를 `rank` 오름차순으로 정렬했다.
-같은 순위 안에서는 Source 테이블·필드와 Target 테이블·필드순이다.
-원본 실행 순서는 [`predictions.csv`](../outputs/reference_demo/predictions.csv)에 보존되어 있다.
+실제 SCHEMORA 실행에서 반환된 후보 **135건 전체**를 전역 검토 우선순위로 배열했다.
+이 순서는 정확도·관련도·신뢰도의 전역 확률이 아니라, 서로 다른 Source 질의의 후보를 사람이 먼저 검토할 순서를 정하기 위한 파생 지표다.
 
-표시된 Vector와 BM25는 서로 다른 검색 점수이며 확률이 아니다.
-최종 `rank`는 SCHEMORA의 LLM column-ranking 결과다.
+## 산정 방식
 
-## 순위 분포
+Vector와 BM25의 원점수는 단위와 분포가 달라 직접 더하거나 min-max 정규화하지 않았다. 각 Source 필드 질의 안에서 다음 세 순위만 사용했다.
 
-| 순위 | 후보 수 |
-|---:|---:|
-| 1 | 28 |
-| 2 | 28 |
-| 3 | 28 |
-| 4 | 26 |
-| 5 | 25 |
+1. SCHEMORA 최종 LLM column-ranking 순위
+2. Vector score 내림차순의 질의 내 순위
+3. BM25 score 내림차순의 질의 내 순위
+
+세 순위는 동일 가중치의 Reciprocal Rank Fusion(RRF)으로 결합했다.
+원 논문의 고정값과 같은 `k=60`을 사용했다.
+
+```text
+RRF = Σ 1 / (60 + 질의 내 순위)
+전역 검토 우선순위 점수 = RRF / (3 / 61) × 100
+```
+
+해당 검색 경로에 후보가 없어서 Vector 또는 BM25 값이 비어 있으면 그 신호의 기여를 0으로 둔다. 이는 결측치를 평균값으로 보충하는 것보다 보수적이다. 학습된 가중치나 저장 링크 정답은 사용하지 않았다.
+동점 후보는 같은 검토 순위를 가지며, 표 안의 동점 표시 순서만 Source와 Target 이름으로 고정했다.
+
+- [RRF 원 논문(Cormack, Clarke, Büttcher, SIGIR 2009)](https://doi.org/10.1145/1571941.1572114)
+- [원본 실행 순서 CSV](../outputs/reference_demo/predictions.csv)
+- [RRF 전역 검토 우선순위 CSV](../outputs/reference_demo/predictions_global_priority.csv)
 
 ## 전체 135건
 
-| 순위 | Source | Target | Vector | BM25 | 검색 경로 | 등급 |
-|---:|---|---|---:|---:|---|---|
-| 1 | `교전규칙.condition` | `작전명령.operation_name` | 0.53794438 | 1.19911718 | bm25_match · embedding_match | High |
-| 1 | `교전규칙.priority` | `작전명령.applies_rule` | 0.57027102 | 1.78161919 | bm25_match · bm25_match_syn · embedding_match | High |
-| 1 | `교전규칙.requirement` | `작전명령.applies_rule` | 0.65640652 | 1.78161919 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `교전규칙.rule_id` | `작전명령.opord_id` | 0.55904764 | — | embedding_match_syn | Medium |
-| 1 | `교전규칙.rule_name` | `작전명령.applies_rule` | 0.50353932 | 1.37127435 | bm25_match · bm25_match_syn · embedding_match | High |
-| 1 | `교전규칙.rule_type` | `작전명령.applies_rule` | 0.64042711 | 1.78161919 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `아군_부대.available_firepower` | `적군_부대.available_firepower` | 0.86869001 | 4.17253876 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `아군_부대.operation` | `작전명령.operation_name` | 0.63587856 | 1.04857707 | bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `아군_부대.unit_id` | `적군_부대.unit_id` | 1.00072670 | 3.08132124 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `아군_부대.unit_name` | `적군_부대.unit_name` | 0.95049882 | 3.46120501 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.applies_rule` | `교전규칙.rule_id` | 0.59071583 | — | embedding_match · embedding_match_syn | Medium |
-| 1 | `작전명령.deadline` | `교전규칙.rule_name` | 0.52003193 | 1.13787580 | bm25_match_syn · embedding_match_syn | High |
-| 1 | `작전명령.issued_to_unit` | `아군_부대.unit_id` | 0.77413464 | 1.59374774 | bm25_match · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.mission` | `교전규칙.rule_name` | 0.74617708 | 2.51665211 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.operation_name` | `아군_부대.operation` | 0.50248486 | 1.37877619 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.operation_type` | `아군_부대.operation` | 0.60334861 | 1.37877619 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.opord_id` | `아군_부대.operation` | 0.56391150 | 1.89033604 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `작전명령.target_terrain` | `지형_정보.key_terrain` | 0.76881814 | 2.10961127 | bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `적군_부대.available_firepower` | `아군_부대.available_firepower` | 0.73488468 | 1.77524996 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `적군_부대.operation` | `아군_부대.unit_id` | 0.54483271 | 1.57687104 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `적군_부대.unit_id` | `아군_부대.unit_id` | 0.99985754 | 2.60461187 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `적군_부대.unit_name` | `아군_부대.unit_name` | 0.82306647 | 2.04746222 | bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `지형_정보.elevation` | `작전명령.target_terrain` | 0.54737127 | 1.68026090 | bm25_match · bm25_match_syn · embedding_match | High |
-| 1 | `지형_정보.key_terrain` | `작전명령.target_terrain` | 0.54737127 | 1.68026090 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `지형_정보.name` | `작전명령.target_terrain` | 0.59197438 | 1.68026090 | bm25_match · bm25_match_syn · embedding_match_syn | High |
-| 1 | `지형_정보.note` | `작전명령.target_terrain` | 0.59435260 | 1.68026090 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `지형_정보.terrain_id` | `작전명령.target_terrain` | 0.53304082 | 1.68026090 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | High |
-| 1 | `지형_정보.terrain_type` | `작전명령.target_terrain` | 0.58677554 | 1.68026090 | bm25_match_syn · embedding_match_syn | High |
-| 2 | `교전규칙.condition` | `작전명령.issued_to_unit` |  | 1.19911718 | bm25_match | Medium |
-| 2 | `교전규칙.priority` | `작전명령.opord_id` | 0.51893330 | 1.14227045 | bm25_match · embedding_match | Medium |
-| 2 | `교전규칙.requirement` | `작전명령.issued_to_unit` |  | 1.19911718 | bm25_match | Medium |
-| 2 | `교전규칙.rule_id` | `작전명령.applies_rule` | 0.55457079 | 1.37127435 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `교전규칙.rule_name` | `작전명령.operation_name` |  | 1.78161919 | bm25_match | Medium |
-| 2 | `교전규칙.rule_type` | `작전명령.issued_to_unit` |  | 1.19911718 | bm25_match_syn | Medium |
-| 2 | `아군_부대.available_firepower` | `지형_정보.elevation` |  | 1.85313499 | bm25_match | Medium |
-| 2 | `아군_부대.operation` | `작전명령.mission` | 0.82734811 | 1.68821990 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `아군_부대.unit_id` | `적군_부대.unit_name` | 0.75240171 | 2.41262794 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `아군_부대.unit_name` | `적군_부대.unit_id` | 0.66801852 | 1.70761251 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.applies_rule` | `교전규칙.rule_name` | 0.62772745 | 1.13787580 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.deadline` | `교전규칙.priority` | 0.66532469 | 1.34655392 | bm25_match_syn · embedding_match_syn | Medium |
-| 2 | `작전명령.issued_to_unit` | `아군_부대.unit_name` | 0.72758150 | — | embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.mission` | `교전규칙.condition` | 0.52543610 | 1.13787580 | bm25_match_syn · embedding_match_syn | Medium |
-| 2 | `작전명령.operation_name` | `적군_부대.operation` | 0.57645714 | — | embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.operation_type` | `적군_부대.operation` | 0.66589987 | — | embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.opord_id` | `아군_부대.unit_id` | 0.64565653 | 1.20244694 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `작전명령.target_terrain` | `지형_정보.terrain_id` | 0.62158549 | 1.13787580 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 2 | `적군_부대.available_firepower` | `교전규칙.condition` |  | 1.15022552 | bm25_match_syn | Medium |
-| 2 | `적군_부대.operation` | `아군_부대.unit_name` | 0.51561415 | 1.30421495 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `적군_부대.unit_id` | `아군_부대.available_firepower` | 0.59818512 | 1.80734015 | bm25_match · bm25_match_syn · embedding_match | Medium |
-| 2 | `적군_부대.unit_name` | `아군_부대.unit_id` | 0.78224987 | 2.03560686 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 2 | `지형_정보.elevation` | `교전규칙.priority` |  | 1.32284486 | bm25_match | Medium |
-| 2 | `지형_정보.key_terrain` | `교전규칙.requirement` |  | 1.24445295 | bm25_match | Medium |
-| 2 | `지형_정보.name` | `아군_부대.unit_name` |  | 1.83568299 | bm25_match_syn | Medium |
-| 2 | `지형_정보.note` | `교전규칙.condition` |  | 1.75201690 | bm25_match_syn | Medium |
-| 2 | `지형_정보.terrain_id` | `교전규칙.condition` | 0.50626206 | 1.17919350 | bm25_match · bm25_match_syn · embedding_match | Medium |
-| 2 | `지형_정보.terrain_type` | `교전규칙.rule_type` |  | 1.83568299 | bm25_match · bm25_match_syn | Medium |
-| 3 | `교전규칙.condition` | `작전명령.operation_type` | 0.50301170 | — | embedding_match | Medium |
-| 3 | `교전규칙.priority` | `지형_정보.elevation` |  | 1.86004531 | bm25_match_syn | Medium |
-| 3 | `교전규칙.requirement` | `작전명령.operation_name` | 0.54860044 | 1.19911718 | bm25_match · embedding_match | Medium |
-| 3 | `교전규칙.rule_id` | `작전명령.issued_to_unit` |  | 1.26547945 | bm25_match | Medium |
-| 3 | `교전규칙.rule_name` | `작전명령.mission` | 0.50809854 | 1.57869399 | bm25_match · embedding_match | Medium |
-| 3 | `교전규칙.rule_type` | `작전명령.mission` |  | 1.19911718 | bm25_match_syn | Medium |
-| 3 | `아군_부대.available_firepower` | `적군_부대.unit_id` |  | 1.33605766 | bm25_match | Medium |
-| 3 | `아군_부대.operation` | `작전명령.operation_type` | 0.74774563 | 1.05087090 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 3 | `아군_부대.unit_id` | `적군_부대.available_firepower` |  | 1.33605766 | bm25_match | Medium |
-| 3 | `아군_부대.unit_name` | `작전명령.issued_to_unit` | 0.61828411 | — | embedding_match · embedding_match_syn | Medium |
-| 3 | `작전명령.applies_rule` | `교전규칙.condition` | 0.56979454 | 1.13787580 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 3 | `작전명령.deadline` | `교전규칙.condition` |  | 1.13787580 | bm25_match_syn | Medium |
-| 3 | `작전명령.issued_to_unit` | `아군_부대.available_firepower` | 0.63182914 | — | embedding_match · embedding_match_syn | Medium |
-| 3 | `작전명령.mission` | `교전규칙.priority` | 0.59789729 | 1.34655392 | bm25_match_syn · embedding_match_syn | Medium |
-| 3 | `작전명령.operation_name` | `아군_부대.unit_name` | 0.60530639 | 1.51589847 | bm25_match_syn · embedding_match_syn | Medium |
-| 3 | `작전명령.operation_type` | `아군_부대.unit_name` |  | 1.08218789 | bm25_match_syn | Medium |
-| 3 | `작전명령.opord_id` | `아군_부대.available_firepower` | 0.62259912 | — | embedding_match_syn | Medium |
-| 3 | `작전명령.target_terrain` | `지형_정보.terrain_type` | 0.64701629 | 1.37877619 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 3 | `적군_부대.available_firepower` | `교전규칙.priority` | 0.55396783 | 1.77524996 | bm25_match · embedding_match | Medium |
-| 3 | `적군_부대.operation` | `작전명령.target_terrain` | 0.60612011 | 1.29258513 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 3 | `적군_부대.unit_id` | `아군_부대.unit_name` | 0.75880754 | 1.02774096 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 3 | `적군_부대.unit_name` | `아군_부대.operation` | 0.75679868 | 1.35055876 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 3 | `지형_정보.elevation` | `교전규칙.rule_id` |  | 1.24445295 | bm25_match | Medium |
-| 3 | `지형_정보.key_terrain` | `교전규칙.rule_id` |  | 1.24445295 | bm25_match | Medium |
-| 3 | `지형_정보.name` | `아군_부대.unit_id` |  | 1.02157843 | bm25_match | Medium |
-| 3 | `지형_정보.note` | `아군_부대.available_firepower` |  | 1.75201690 | bm25_match_syn | Medium |
-| 3 | `지형_정보.terrain_id` | `적군_부대.operation` | 0.54871321 | 1.17919350 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 3 | `지형_정보.terrain_type` | `작전명령.operation_name` |  | 1.47148156 | bm25_match_syn | Medium |
-| 4 | `교전규칙.condition` | `작전명령.applies_rule` | 0.61617190 | 1.37127435 | bm25_match · embedding_match | Medium |
-| 4 | `교전규칙.priority` | `지형_정보.key_terrain` |  | 1.34584332 | bm25_match | Low |
-| 4 | `교전규칙.requirement` | `작전명령.mission` |  | 1.19911718 | bm25_match | Low |
-| 4 | `교전규칙.rule_id` | `작전명령.mission` | 0.50527108 | — | embedding_match_syn | Low |
-| 4 | `교전규칙.rule_type` | `작전명령.operation_name` | 0.60104179 | 1.19911718 | bm25_match_syn · embedding_match_syn | Medium |
-| 4 | `아군_부대.available_firepower` | `교전규칙.condition` |  | 1.13952446 | bm25_match_syn | Low |
-| 4 | `아군_부대.operation` | `작전명령.opord_id` | 0.89762557 | 1.47145832 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 4 | `아군_부대.unit_id` | `적군_부대.operation` | 0.53769207 | — | embedding_match_syn | Low |
-| 4 | `아군_부대.unit_name` | `작전명령.mission` | 0.58619654 | — | embedding_match · embedding_match_syn | Low |
-| 4 | `작전명령.applies_rule` | `교전규칙.priority` | 0.65993482 | 1.34655392 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 4 | `작전명령.deadline` | `아군_부대.available_firepower` |  | 1.13787580 | bm25_match_syn | Low |
-| 4 | `작전명령.issued_to_unit` | `아군_부대.operation` | 0.66422659 | 1.89033604 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 4 | `작전명령.mission` | `아군_부대.unit_id` | 0.60917568 | — | embedding_match | Low |
-| 4 | `작전명령.operation_name` | `적군_부대.unit_name` | 0.63067758 | 1.51589847 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 4 | `작전명령.operation_type` | `적군_부대.unit_name` |  | 1.28065324 | bm25_match_syn | Low |
-| 4 | `작전명령.opord_id` | `적군_부대.unit_id` | 0.68340826 | 1.42296696 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 4 | `작전명령.target_terrain` | `지형_정보.name` | 0.58885580 | 1.13787580 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 4 | `적군_부대.available_firepower` | `교전규칙.rule_id` |  | 1.34860432 | bm25_match | Low |
-| 4 | `적군_부대.operation` | `작전명령.operation_type` | 0.68653107 | 2.16978216 | bm25_match_syn · embedding_match_syn | Medium |
-| 4 | `적군_부대.unit_id` | `아군_부대.operation` | 0.70617247 | 2.78266954 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 4 | `적군_부대.unit_name` | `작전명령.operation_name` | 0.71839774 | 2.03560686 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 4 | `지형_정보.elevation` | `교전규칙.requirement` |  | 1.32284486 | bm25_match | Low |
-| 4 | `지형_정보.key_terrain` | `작전명령.applies_rule` | 0.54233086 | 1.55246329 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 4 | `지형_정보.name` | `작전명령.opord_id` |  | 1.24445295 | bm25_match | Low |
-| 4 | `지형_정보.terrain_id` | `아군_부대.unit_id` | 0.51732105 | 1.02157843 | bm25_match · bm25_match_syn · embedding_match | Medium |
-| 4 | `지형_정보.terrain_type` | `작전명령.operation_type` |  | 2.07164168 | bm25_match · bm25_match_syn | Low |
-| 5 | `교전규칙.condition` | `작전명령.mission` |  | 1.19911718 | bm25_match | Low |
-| 5 | `교전규칙.priority` | `지형_정보.name` |  | 1.14227045 | bm25_match | Low |
-| 5 | `교전규칙.requirement` | `작전명령.target_terrain` |  | 1.19911718 | bm25_match | Low |
-| 5 | `교전규칙.rule_id` | `아군_부대.operation` |  | 1.09921205 | bm25_match | Low |
-| 5 | `교전규칙.rule_type` | `작전명령.operation_type` | 0.60159510 | 1.57869399 | bm25_match · bm25_match_syn · embedding_match_syn | Medium |
-| 5 | `아군_부대.available_firepower` | `교전규칙.priority` |  | 1.24385738 | bm25_match | Low |
-| 5 | `아군_부대.operation` | `적군_부대.operation` | 0.67160642 | 2.08626938 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 5 | `아군_부대.unit_id` | `교전규칙.condition` |  | 1.01007128 | bm25_match | Low |
-| 5 | `아군_부대.unit_name` | `작전명령.operation_name` | 0.68163753 | 1.75873399 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 5 | `작전명령.applies_rule` | `교전규칙.rule_type` | 0.61652482 | 1.78658581 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 5 | `작전명령.issued_to_unit` | `적군_부대.unit_id` | 0.80491042 | 1.42296696 | bm25_match · embedding_match · embedding_match_syn | Medium |
-| 5 | `작전명령.mission` | `아군_부대.unit_name` | 0.71928889 | — | embedding_match | Low |
-| 5 | `작전명령.operation_name` | `지형_정보.name` |  | 1.37877619 | bm25_match · bm25_match_syn | Low |
-| 5 | `작전명령.operation_type` | `아군_부대.available_firepower` | 0.51239729 | — | embedding_match | Low |
-| 5 | `작전명령.opord_id` | `아군_부대.unit_name` | 0.60683531 | — | embedding_match_syn | Low |
-| 5 | `작전명령.target_terrain` | `지형_정보.elevation` | 0.58645999 | — | embedding_match · embedding_match_syn | Low |
-| 5 | `적군_부대.available_firepower` | `교전규칙.rule_name` |  | 1.16727936 | bm25_match | Low |
-| 5 | `적군_부대.operation` | `작전명령.operation_name` | 0.59433955 | 1.82519841 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 5 | `적군_부대.unit_id` | `작전명령.opord_id` | 0.83417797 | 2.25441217 | bm25_match · bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 5 | `적군_부대.unit_name` | `작전명령.opord_id` | 0.67430782 | 1.76191187 | bm25_match_syn · embedding_match · embedding_match_syn | Medium |
-| 5 | `지형_정보.elevation` | `교전규칙.condition` |  | 1.17919350 | bm25_match | Low |
-| 5 | `지형_정보.key_terrain` | `작전명령.issued_to_unit` | 0.50885040 | 1.24445295 | bm25_match · embedding_match_syn | Medium |
-| 5 | `지형_정보.name` | `적군_부대.operation` | 0.51243913 | 1.17919350 | bm25_match · embedding_match | Medium |
-| 5 | `지형_정보.terrain_id` | `작전명령.opord_id` | 0.52002263 | 1.24445295 | bm25_match · embedding_match | Medium |
-| 5 | `지형_정보.terrain_type` | `작전명령.mission` |  | 1.24445295 | bm25_match_syn | Low |
+| 표시 순번 | 검토 순위 | 우선순위 점수 | Source | Target | LLM 질의 순위 | Vector 원점수·질의 순위 | BM25 원점수·질의 순위 | 신호 수 |
+|---:|---:|---:|---|---|---:|---:|---:|---:|
+| 1 | 1 | 100.000000 | `교전규칙.requirement` | `작전명령.applies_rule` | #1 | 0.65640652 · #1 | 1.78161919 · #1 | 3/3 |
+| 2 | 1 | 100.000000 | `교전규칙.rule_type` | `작전명령.applies_rule` | #1 | 0.64042711 · #1 | 1.78161919 · #1 | 3/3 |
+| 3 | 1 | 100.000000 | `아군_부대.available_firepower` | `적군_부대.available_firepower` | #1 | 0.86869001 · #1 | 4.17253876 · #1 | 3/3 |
+| 4 | 1 | 100.000000 | `아군_부대.unit_id` | `적군_부대.unit_id` | #1 | 1.00072670 · #1 | 3.08132124 · #1 | 3/3 |
+| 5 | 1 | 100.000000 | `아군_부대.unit_name` | `적군_부대.unit_name` | #1 | 0.95049882 · #1 | 3.46120501 · #1 | 3/3 |
+| 6 | 1 | 100.000000 | `작전명령.mission` | `교전규칙.rule_name` | #1 | 0.74617708 · #1 | 2.51665211 · #1 | 3/3 |
+| 7 | 1 | 100.000000 | `작전명령.target_terrain` | `지형_정보.key_terrain` | #1 | 0.76881814 · #1 | 2.10961127 · #1 | 3/3 |
+| 8 | 1 | 100.000000 | `적군_부대.unit_name` | `아군_부대.unit_name` | #1 | 0.82306647 · #1 | 2.04746222 · #1 | 3/3 |
+| 9 | 1 | 100.000000 | `지형_정보.elevation` | `작전명령.target_terrain` | #1 | 0.54737127 · #1 | 1.68026090 · #1 | 3/3 |
+| 10 | 1 | 100.000000 | `지형_정보.key_terrain` | `작전명령.target_terrain` | #1 | 0.54737127 · #1 | 1.68026090 · #1 | 3/3 |
+| 11 | 11 | 99.728997 | `적군_부대.available_firepower` | `아군_부대.available_firepower` | #1 | 0.73488468 · #1 | 1.77524996 · #1.5 | 3/3 |
+| 12 | 12 | 99.462366 | `교전규칙.priority` | `작전명령.applies_rule` | #1 | 0.57027102 · #1 | 1.78161919 · #2 | 3/3 |
+| 13 | 12 | 99.462366 | `작전명령.operation_type` | `아군_부대.operation` | #1 | 0.60334861 · #2 | 1.37877619 · #1 | 3/3 |
+| 14 | 12 | 99.462366 | `적군_부대.unit_id` | `아군_부대.unit_id` | #1 | 0.99985754 · #1 | 2.60461187 · #2 | 3/3 |
+| 15 | 12 | 99.462366 | `지형_정보.name` | `작전명령.target_terrain` | #1 | 0.59197438 · #1 | 1.68026090 · #2 | 3/3 |
+| 16 | 12 | 99.462366 | `지형_정보.terrain_id` | `작전명령.target_terrain` | #1 | 0.53304082 · #2 | 1.68026090 · #1 | 3/3 |
+| 17 | 12 | 99.462366 | `작전명령.deadline` | `교전규칙.priority` | #2 | 0.66532469 · #1 | 1.34655392 · #1 | 3/3 |
+| 18 | 18 | 98.941799 | `지형_정보.note` | `작전명령.target_terrain` | #1 | 0.59435260 · #1 | 1.68026090 · #3 | 3/3 |
+| 19 | 18 | 98.941799 | `지형_정보.terrain_type` | `작전명령.target_terrain` | #1 | 0.58677554 · #1 | 1.68026090 · #3 | 3/3 |
+| 20 | 20 | 98.924731 | `작전명령.issued_to_unit` | `아군_부대.unit_id` | #1 | 0.77413464 · #2 | 1.59374774 · #2 | 3/3 |
+| 21 | 20 | 98.924731 | `교전규칙.rule_id` | `작전명령.applies_rule` | #2 | 0.55457079 · #2 | 1.37127435 · #1 | 3/3 |
+| 22 | 22 | 98.437500 | `교전규칙.condition` | `작전명령.applies_rule` | #4 | 0.61617190 · #1 | 1.37127435 · #1 | 3/3 |
+| 23 | 22 | 98.437500 | `적군_부대.operation` | `작전명령.operation_type` | #4 | 0.68653107 · #1 | 2.16978216 · #1 | 3/3 |
+| 24 | 24 | 98.404165 | `교전규칙.condition` | `작전명령.operation_name` | #1 | 0.53794438 · #2 | 1.19911718 · #3 | 3/3 |
+| 25 | 24 | 98.404165 | `교전규칙.rule_name` | `작전명령.applies_rule` | #1 | 0.50353932 · #2 | 1.37127435 · #3 | 3/3 |
+| 26 | 24 | 98.404165 | `작전명령.deadline` | `교전규칙.rule_name` | #1 | 0.52003193 · #2 | 1.13787580 · #3 | 3/3 |
+| 27 | 24 | 98.404165 | `교전규칙.rule_name` | `작전명령.mission` | #3 | 0.50809854 · #1 | 1.57869399 · #2 | 3/3 |
+| 28 | 28 | 98.387097 | `아군_부대.operation` | `작전명령.mission` | #2 | 0.82734811 · #2 | 1.68821990 · #2 | 3/3 |
+| 29 | 28 | 98.387097 | `아군_부대.unit_id` | `적군_부대.unit_name` | #2 | 0.75240171 · #2 | 2.41262794 · #2 | 3/3 |
+| 30 | 30 | 98.166497 | `작전명령.operation_name` | `적군_부대.unit_name` | #4 | 0.63067758 · #1 | 1.51589847 · #1.5 | 3/3 |
+| 31 | 31 | 98.133162 | `작전명령.operation_name` | `아군_부대.unit_name` | #3 | 0.60530639 · #2 | 1.51589847 · #1.5 | 3/3 |
+| 32 | 31 | 98.133162 | `적군_부대.available_firepower` | `교전규칙.priority` | #3 | 0.55396783 · #2 | 1.77524996 · #1.5 | 3/3 |
+| 33 | 33 | 98.124731 | `적군_부대.unit_name` | `아군_부대.unit_id` | #2 | 0.78224987 · #2 | 2.03560686 · #2.5 | 3/3 |
+| 34 | 34 | 97.948718 | `작전명령.opord_id` | `아군_부대.operation` | #1 | 0.56391150 · #5 | 1.89033604 · #1 | 3/3 |
+| 35 | 35 | 97.899866 | `작전명령.applies_rule` | `교전규칙.priority` | #4 | 0.65993482 · #1 | 1.34655392 · #2 | 3/3 |
+| 36 | 35 | 97.899866 | `작전명령.opord_id` | `적군_부대.unit_id` | #4 | 0.68340826 · #1 | 1.42296696 · #2 | 3/3 |
+| 37 | 37 | 97.866530 | `작전명령.opord_id` | `아군_부대.unit_id` | #2 | 0.64565653 · #2 | 1.20244694 · #3 | 3/3 |
+| 38 | 37 | 97.866530 | `작전명령.target_terrain` | `지형_정보.terrain_type` | #3 | 0.64701629 · #2 | 1.37877619 · #2 | 3/3 |
+| 39 | 39 | 97.629463 | `지형_정보.terrain_id` | `적군_부대.operation` | #3 | 0.54871321 · #1 | 1.17919350 · #3.5 | 3/3 |
+| 40 | 40 | 97.612395 | `작전명령.applies_rule` | `교전규칙.rule_name` | #2 | 0.62772745 · #2 | 1.13787580 · #3.5 | 3/3 |
+| 41 | 41 | 97.379299 | `적군_부대.operation` | `아군_부대.unit_id` | #1 | 0.54483271 · #4 | 1.57687104 · #3 | 3/3 |
+| 42 | 41 | 97.379299 | `아군_부대.operation` | `작전명령.opord_id` | #4 | 0.89762557 · #1 | 1.47145832 · #3 | 3/3 |
+| 43 | 43 | 97.362231 | `지형_정보.key_terrain` | `작전명령.applies_rule` | #4 | 0.54233086 · #2 | 1.55246329 · #2 | 3/3 |
+| 44 | 44 | 97.345963 | `아군_부대.unit_name` | `적군_부대.unit_id` | #2 | 0.66801852 · #3 | 1.70761251 · #3 | 3/3 |
+| 45 | 45 | 97.125164 | `작전명령.operation_name` | `아군_부대.operation` | #1 | 0.50248486 · #4 | 1.37877619 · #3.5 | 3/3 |
+| 46 | 46 | 97.115946 | `교전규칙.priority` | `작전명령.opord_id` | #2 | 0.51893330 · #2 | 1.14227045 · #4.5 | 3/3 |
+| 47 | 47 | 97.091829 | `작전명령.target_terrain` | `지형_정보.terrain_id` | #2 | 0.62158549 · #3 | 1.13787580 · #3.5 | 3/3 |
+| 48 | 47 | 97.091829 | `교전규칙.requirement` | `작전명령.operation_name` | #3 | 0.54860044 · #2 | 1.19911718 · #3.5 | 3/3 |
+| 49 | 49 | 96.890517 | `작전명령.applies_rule` | `교전규칙.rule_type` | #5 | 0.61652482 · #3 | 1.78658581 · #1 | 3/3 |
+| 50 | 49 | 96.890517 | `작전명령.issued_to_unit` | `적군_부대.unit_id` | #5 | 0.80491042 · #1 | 1.42296696 · #3 | 3/3 |
+| 51 | 51 | 96.875000 | `작전명령.issued_to_unit` | `아군_부대.operation` | #4 | 0.66422659 · #4 | 1.89033604 · #1 | 3/3 |
+| 52 | 51 | 96.875000 | `적군_부대.unit_id` | `아군_부대.operation` | #4 | 0.70617247 · #4 | 2.78266954 · #1 | 3/3 |
+| 53 | 53 | 96.873449 | `교전규칙.rule_type` | `작전명령.operation_type` | #5 | 0.60159510 · #2 | 1.57869399 · #2 | 3/3 |
+| 54 | 53 | 96.873449 | `아군_부대.unit_name` | `작전명령.operation_name` | #5 | 0.68163753 · #2 | 1.75873399 · #2 | 3/3 |
+| 55 | 55 | 96.841665 | `작전명령.mission` | `교전규칙.priority` | #3 | 0.59789729 · #4 | 1.34655392 · #2 | 3/3 |
+| 56 | 56 | 96.386218 | `아군_부대.operation` | `적군_부대.operation` | #5 | 0.67160642 · #4 | 2.08626938 · #1 | 3/3 |
+| 57 | 57 | 96.352882 | `작전명령.mission` | `교전규칙.condition` | #2 | 0.52543610 · #5 | 1.13787580 · #3 | 3/3 |
+| 58 | 57 | 96.352882 | `적군_부대.operation` | `작전명령.target_terrain` | #3 | 0.60612011 · #2 | 1.29258513 · #5 | 3/3 |
+| 59 | 57 | 96.352882 | `적군_부대.operation` | `작전명령.operation_name` | #5 | 0.59433955 · #3 | 1.82519841 · #2 | 3/3 |
+| 60 | 57 | 96.352882 | `적군_부대.unit_id` | `작전명령.opord_id` | #5 | 0.83417797 · #2 | 2.25441217 · #3 | 3/3 |
+| 61 | 57 | 96.352882 | `지형_정보.terrain_id` | `작전명령.opord_id` | #5 | 0.52002263 · #3 | 1.24445295 · #2 | 3/3 |
+| 62 | 62 | 96.321098 | `아군_부대.operation` | `작전명령.operation_type` | #3 | 0.74774563 · #3 | 1.05087090 · #4 | 3/3 |
+| 63 | 63 | 96.098748 | `지형_정보.terrain_id` | `교전규칙.condition` | #2 | 0.50626206 · #5 | 1.17919350 · #3.5 | 3/3 |
+| 64 | 64 | 96.075000 | `적군_부대.unit_name` | `작전명령.operation_name` | #4 | 0.71839774 · #4 | 2.03560686 · #2.5 | 3/3 |
+| 65 | 65 | 95.897436 | `아군_부대.operation` | `작전명령.operation_name` | #1 | 0.63587856 · #5 | 1.04857707 · #5 | 3/3 |
+| 66 | 66 | 95.848584 | `적군_부대.operation` | `아군_부대.unit_name` | #2 | 0.51561415 · #5 | 1.30421495 · #4 | 3/3 |
+| 67 | 66 | 95.848584 | `적군_부대.unit_id` | `아군_부대.available_firepower` | #2 | 0.59818512 · #5 | 1.80734015 · #4 | 3/3 |
+| 68 | 66 | 95.848584 | `지형_정보.name` | `적군_부대.operation` | #5 | 0.51243913 · #2 | 1.17919350 · #4 | 3/3 |
+| 69 | 69 | 95.832316 | `적군_부대.unit_id` | `아군_부대.unit_name` | #3 | 0.75880754 · #3 | 1.02774096 · #5 | 3/3 |
+| 70 | 69 | 95.832316 | `적군_부대.unit_name` | `아군_부대.operation` | #3 | 0.75679868 · #3 | 1.35055876 · #5 | 3/3 |
+| 71 | 71 | 95.816799 | `교전규칙.rule_type` | `작전명령.operation_name` | #4 | 0.60104179 · #3 | 1.19911718 · #4 | 3/3 |
+| 72 | 72 | 95.578181 | `작전명령.applies_rule` | `교전규칙.condition` | #3 | 0.56979454 · #5 | 1.13787580 · #3.5 | 3/3 |
+| 73 | 73 | 95.562664 | `작전명령.target_terrain` | `지형_정보.name` | #4 | 0.58885580 · #4 | 1.13787580 · #3.5 | 3/3 |
+| 74 | 74 | 95.328017 | `지형_정보.key_terrain` | `작전명령.issued_to_unit` | #5 | 0.50885040 · #3 | 1.24445295 · #4 | 3/3 |
+| 75 | 75 | 94.823718 | `지형_정보.terrain_id` | `아군_부대.unit_id` | #4 | 0.51732105 · #4 | 1.02157843 · #5 | 3/3 |
+| 76 | 76 | 94.334936 | `적군_부대.unit_name` | `작전명령.opord_id` | #5 | 0.67430782 · #5 | 1.76191187 · #4 | 3/3 |
+| 77 | 77 | 66.666667 | `교전규칙.rule_id` | `작전명령.opord_id` | #1 | 0.55904764 · #1 | — | 2/3 |
+| 78 | 78 | 66.129032 | `교전규칙.rule_name` | `작전명령.operation_name` | #2 | — | 1.78161919 · #1 | 2/3 |
+| 79 | 78 | 66.129032 | `작전명령.operation_type` | `적군_부대.operation` | #2 | 0.66589987 · #1 | — | 2/3 |
+| 80 | 78 | 66.129032 | `지형_정보.name` | `아군_부대.unit_name` | #2 | — | 1.83568299 · #1 | 2/3 |
+| 81 | 81 | 65.858030 | `지형_정보.note` | `교전규칙.condition` | #2 | — | 1.75201690 · #1.5 | 2/3 |
+| 82 | 82 | 65.608466 | `교전규칙.priority` | `지형_정보.elevation` | #3 | — | 1.86004531 · #1 | 2/3 |
+| 83 | 83 | 65.591398 | `아군_부대.available_firepower` | `지형_정보.elevation` | #2 | — | 1.85313499 · #2 | 2/3 |
+| 84 | 83 | 65.591398 | `지형_정보.terrain_type` | `교전규칙.rule_type` | #2 | — | 1.83568299 · #2 | 2/3 |
+| 85 | 85 | 65.337463 | `지형_정보.note` | `아군_부대.available_firepower` | #3 | — | 1.75201690 · #1.5 | 2/3 |
+| 86 | 86 | 65.329032 | `지형_정보.elevation` | `교전규칙.priority` | #2 | — | 1.32284486 · #2.5 | 2/3 |
+| 87 | 87 | 65.104167 | `작전명령.applies_rule` | `교전규칙.rule_id` | #1 | 0.59071583 · #4 | — | 2/3 |
+| 88 | 87 | 65.104167 | `지형_정보.terrain_type` | `작전명령.operation_type` | #4 | — | 2.07164168 · #1 | 2/3 |
+| 89 | 89 | 65.070831 | `교전규칙.condition` | `작전명령.issued_to_unit` | #2 | — | 1.19911718 · #3 | 2/3 |
+| 90 | 89 | 65.070831 | `작전명령.issued_to_unit` | `아군_부대.unit_name` | #2 | 0.72758150 · #3 | — | 2/3 |
+| 91 | 89 | 65.070831 | `작전명령.operation_name` | `적군_부대.operation` | #2 | 0.57645714 · #3 | — | 2/3 |
+| 92 | 89 | 65.070831 | `교전규칙.rule_id` | `작전명령.issued_to_unit` | #3 | — | 1.26547945 · #2 | 2/3 |
+| 93 | 93 | 64.816696 | `교전규칙.requirement` | `작전명령.issued_to_unit` | #2 | — | 1.19911718 · #3.5 | 2/3 |
+| 94 | 94 | 64.566532 | `교전규칙.rule_type` | `작전명령.issued_to_unit` | #2 | — | 1.19911718 · #4 | 2/3 |
+| 95 | 94 | 64.566532 | `지형_정보.key_terrain` | `교전규칙.requirement` | #2 | — | 1.24445295 · #4 | 2/3 |
+| 96 | 94 | 64.566532 | `작전명령.operation_type` | `적군_부대.unit_name` | #4 | — | 1.28065324 · #2 | 2/3 |
+| 97 | 97 | 64.550265 | `교전규칙.condition` | `작전명령.operation_type` | #3 | 0.50301170 · #3 | — | 2/3 |
+| 98 | 97 | 64.550265 | `아군_부대.available_firepower` | `적군_부대.unit_id` | #3 | — | 1.33605766 · #3 | 2/3 |
+| 99 | 97 | 64.550265 | `아군_부대.unit_id` | `적군_부대.available_firepower` | #3 | — | 1.33605766 · #3 | 2/3 |
+| 100 | 97 | 64.550265 | `작전명령.deadline` | `교전규칙.condition` | #3 | — | 1.13787580 · #3 | 2/3 |
+| 101 | 97 | 64.550265 | `작전명령.operation_type` | `아군_부대.unit_name` | #3 | — | 1.08218789 · #3 | 2/3 |
+| 102 | 97 | 64.550265 | `작전명령.opord_id` | `아군_부대.available_firepower` | #3 | 0.62259912 · #3 | — | 2/3 |
+| 103 | 103 | 64.304167 | `지형_정보.elevation` | `교전규칙.requirement` | #4 | — | 1.32284486 · #2.5 | 2/3 |
+| 104 | 104 | 64.077750 | `적군_부대.available_firepower` | `교전규칙.condition` | #2 | — | 1.15022552 · #5 | 2/3 |
+| 105 | 104 | 64.077750 | `작전명령.mission` | `아군_부대.unit_name` | #5 | 0.71928889 · #2 | — | 2/3 |
+| 106 | 106 | 64.045966 | `교전규칙.rule_type` | `작전명령.mission` | #3 | — | 1.19911718 · #4 | 2/3 |
+| 107 | 106 | 64.045966 | `아군_부대.unit_name` | `작전명령.issued_to_unit` | #3 | 0.61828411 · #4 | — | 2/3 |
+| 108 | 106 | 64.045966 | `지형_정보.elevation` | `교전규칙.rule_id` | #3 | — | 1.24445295 · #4 | 2/3 |
+| 109 | 106 | 64.045966 | `지형_정보.key_terrain` | `교전규칙.rule_id` | #3 | — | 1.24445295 · #4 | 2/3 |
+| 110 | 106 | 64.045966 | `지형_정보.terrain_type` | `작전명령.operation_name` | #3 | — | 1.47148156 · #4 | 2/3 |
+| 111 | 106 | 64.045966 | `교전규칙.priority` | `지형_정보.key_terrain` | #4 | — | 1.34584332 · #3 | 2/3 |
+| 112 | 106 | 64.045966 | `교전규칙.rule_id` | `작전명령.mission` | #4 | 0.50527108 · #3 | — | 2/3 |
+| 113 | 106 | 64.045966 | `아군_부대.unit_id` | `적군_부대.operation` | #4 | 0.53769207 · #3 | — | 2/3 |
+| 114 | 106 | 64.045966 | `작전명령.deadline` | `아군_부대.available_firepower` | #4 | — | 1.13787580 · #3 | 2/3 |
+| 115 | 106 | 64.045966 | `작전명령.mission` | `아군_부대.unit_id` | #4 | 0.60917568 · #3 | — | 2/3 |
+| 116 | 106 | 64.045966 | `적군_부대.available_firepower` | `교전규칙.rule_id` | #4 | — | 1.34860432 · #3 | 2/3 |
+| 117 | 106 | 64.045966 | `지형_정보.name` | `작전명령.opord_id` | #4 | — | 1.24445295 · #3 | 2/3 |
+| 118 | 118 | 63.791831 | `교전규칙.requirement` | `작전명령.mission` | #4 | — | 1.19911718 · #3.5 | 2/3 |
+| 119 | 119 | 63.557184 | `작전명령.issued_to_unit` | `아군_부대.available_firepower` | #3 | 0.63182914 · #5 | — | 2/3 |
+| 120 | 119 | 63.557184 | `지형_정보.name` | `아군_부대.unit_id` | #3 | — | 1.02157843 · #5 | 2/3 |
+| 121 | 119 | 63.557184 | `교전규칙.condition` | `작전명령.mission` | #5 | — | 1.19911718 · #3 | 2/3 |
+| 122 | 119 | 63.557184 | `교전규칙.rule_id` | `아군_부대.operation` | #5 | — | 1.09921205 · #3 | 2/3 |
+| 123 | 119 | 63.557184 | `작전명령.operation_type` | `아군_부대.available_firepower` | #5 | 0.51239729 · #3 | — | 2/3 |
+| 124 | 124 | 63.303049 | `교전규칙.requirement` | `작전명령.target_terrain` | #5 | — | 1.19911718 · #3.5 | 2/3 |
+| 125 | 124 | 63.303049 | `작전명령.operation_name` | `지형_정보.name` | #5 | — | 1.37877619 · #3.5 | 2/3 |
+| 126 | 126 | 63.052885 | `아군_부대.available_firepower` | `교전규칙.condition` | #4 | — | 1.13952446 · #5 | 2/3 |
+| 127 | 126 | 63.052885 | `아군_부대.unit_name` | `작전명령.mission` | #4 | 0.58619654 · #5 | — | 2/3 |
+| 128 | 126 | 63.052885 | `아군_부대.available_firepower` | `교전규칙.priority` | #5 | — | 1.24385738 · #4 | 2/3 |
+| 129 | 126 | 63.052885 | `아군_부대.unit_id` | `교전규칙.condition` | #5 | — | 1.01007128 · #4 | 2/3 |
+| 130 | 126 | 63.052885 | `작전명령.opord_id` | `아군_부대.unit_name` | #5 | 0.60683531 · #4 | — | 2/3 |
+| 131 | 126 | 63.052885 | `적군_부대.available_firepower` | `교전규칙.rule_name` | #5 | — | 1.16727936 · #4 | 2/3 |
+| 132 | 132 | 62.806599 | `교전규칙.priority` | `지형_정보.name` | #5 | — | 1.14227045 · #4.5 | 2/3 |
+| 133 | 133 | 62.564103 | `작전명령.target_terrain` | `지형_정보.elevation` | #5 | 0.58645999 · #5 | — | 2/3 |
+| 134 | 133 | 62.564103 | `지형_정보.elevation` | `교전규칙.condition` | #5 | — | 1.17919350 · #5 | 2/3 |
+| 135 | 133 | 62.564103 | `지형_정보.terrain_type` | `작전명령.mission` | #5 | — | 1.24445295 · #5 | 2/3 |
 
 ## 재생성
 

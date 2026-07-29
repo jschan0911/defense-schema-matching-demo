@@ -19,19 +19,20 @@ Open <http://127.0.0.1:8765>.
 
 ## SCHEMORA display
 
-- The large display score is `round(vector_score * 100)`.
-- It is a readability transform, not a probability or calibrated confidence.
-- Candidate order follows the final SCHEMORA LLM rank, not the display score.
-- Raw vector and BM25 values remain visible in the evidence detail.
+- Candidate order follows the global review priority derived from equal-weight
+  RRF (`k=60`) over query-local LLM, vector, and BM25 ranks.
+- The large display value is the RRF score normalized by its theoretical
+  three-signal maximum. It is not probability or calibrated confidence.
+- Raw vector/BM25 scores and all three query-local ranks remain visible in the
+  evidence detail.
+- SCHEMORA rows display `링크명 미지정`; the UI does not infer a link name or
+  `relatedTo`/`symmetric` type from field names.
 
-## Rule-based rank grade
+## Signal agreement
 
-- **High**: rank 1 and supported by both embedding and BM25 retrieval.
-- **Medium**: rank 1–3, or supported by both retrieval families.
-- **Low**: every other returned candidate.
-
-This grade is a deterministic display heuristic. It is not calibrated
-confidence and does not affect the saved SCHEMORA rank.
+The `3/3`, `2/3`, or `1/3` badge reports how many of the LLM, vector, and BM25
+rank lists contributed to RRF. Missing retrieval signals contribute zero.
+Signal count is not a correctness vote or confidence estimate.
 
 Approval, ignore, reset-to-pending, search, status filtering, multi-select
 approval, case switching, five-dataset preview, raw evidence display, and
@@ -43,8 +44,8 @@ The two result surfaces are intentionally separate:
 - `Reference · 관찰값` reads the nine fully visible screenshot candidates from
   `observable_reference.json` and is read-only.
 - `SCHEMORA 결과` reads only
-  `outputs/reference_demo/predictions.csv`. It stays empty until the pinned
-  pipeline has actually run and its artifacts have been converted.
+  `outputs/reference_demo/predictions_global_priority.csv`, a deterministic
+  derivative of the pinned pipeline output.
 
-The displayed original-demo score and SCHEMORA vector/BM25 scores are labeled
-as different scales. The UI never copies one into the other.
+The displayed original-demo score, RRF priority, and raw SCHEMORA vector/BM25
+scores are labeled as different scales. The UI never copies one into another.
