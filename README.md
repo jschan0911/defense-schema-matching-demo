@@ -69,12 +69,16 @@ python3 ui/backend/server.py
 
 실제 실행에서 반환된 후보는 총 135건이다. 원본 실행 순서와 provenance는
 [`predictions.csv`](outputs/reference_demo/predictions.csv)에 보존하고,
-열람용 결과는 `rank` 오름차순으로 정렬했다.
+열람용 결과는 LLM·Vector·BM25의 질의 내 순위를 동일 가중치
+Reciprocal Rank Fusion(RRF, `k=60`)으로 결합해 전역 검토 우선순위로
+배열했다. 원점수의 단위가 다른 Vector와 BM25를 직접 정규화하거나
+합산하지 않는다.
 
-- [GitHub에서 보는 전체 135건 순위표](docs/schemora_ranked_results.md)
-- [순위별 정렬 CSV](outputs/reference_demo/predictions_by_rank.csv)
+- [GitHub에서 보는 전체 135건 전역 검토 우선순위표](docs/schemora_ranked_results.md)
+- [RRF 전역 검토 우선순위 CSV](outputs/reference_demo/predictions_global_priority.csv)
 
-정렬 결과는 다음 명령으로 다시 생성할 수 있다.
+이 점수는 정확도나 신뢰확률이 아니며, 사람이 여러 질의의 후보를 검토할
+순서를 정하기 위한 파생 지표다. 결과는 다음 명령으로 다시 생성할 수 있다.
 
 ```bash
 python3 experiments/render_ranked_results.py

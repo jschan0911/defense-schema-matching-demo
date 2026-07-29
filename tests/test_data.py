@@ -85,28 +85,27 @@ class DataTests(unittest.TestCase):
         self.assertIn("높음 `≥90`", guide)
         self.assertIn("확률·정확도·신뢰도가 아님", guide)
 
-    def test_ranked_results_are_complete_and_sorted(self) -> None:
-        with (OUTPUT / "predictions_by_rank.csv").open(newline="") as handle:
+    def test_global_priority_results_are_complete_and_sorted(self) -> None:
+        with (OUTPUT / "predictions_global_priority.csv").open(newline="") as handle:
             rows = list(csv.DictReader(handle))
-        keys = [
-            (
-                int(row["rank"]),
-                row["source_table"],
-                row["source_column"],
-                row["target_object_type"],
-                row["target_property"],
-            )
-            for row in rows
-        ]
         self.assertEqual(len(rows), 135)
-        self.assertEqual(keys, sorted(keys))
+        self.assertEqual(
+            [int(row["display_order"]) for row in rows],
+            list(range(1, 136)),
+        )
+        scores = [float(row["global_priority_score"]) for row in rows]
+        self.assertEqual(scores, sorted(scores, reverse=True))
+        self.assertTrue(
+            all(1 <= int(row["contributing_signals"]) <= 3 for row in rows)
+        )
+        self.assertLessEqual(max(scores), 100.0)
+        self.assertFalse((OUTPUT / "predictions_by_rank.csv").exists())
 
         report = (ROOT / "docs" / "schemora_ranked_results.md").read_text()
         self.assertIn("후보 **135건 전체**", report)
-        self.assertEqual(
-            sum(line.startswith("| 1 | `") for line in report.splitlines()),
-            28,
-        )
+        self.assertIn("RRF 전역 검토 우선순위", report)
+        self.assertIn("정확도·관련도·신뢰도의 전역 확률이 아니라", report)
+        self.assertIn("동점 후보는 같은 검토 순위", report)
 
     def test_readme_embeds_both_ui_screenshots(self) -> None:
         readme = (ROOT / "README.md").read_text()
