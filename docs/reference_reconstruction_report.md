@@ -132,12 +132,11 @@ The two UI surfaces use intentionally different display rules:
 - Reference scores and confidence labels are copied from the observable
   screenshot. The visible bands are High `>=90`, Medium `70–89`, and Low
   `<70`; the original formula and calibration remain unknown.
-- The SCHEMORA large-number display is
-  `round(vector_score * 100)` for readability. Candidate order follows the
-  final LLM ranking, not this number.
-- SCHEMORA rank grades are deterministic review aids: High means rank 1 with
-  both embedding and BM25 support; Medium means rank 1–3 or support from both;
-  Low covers all other returned candidates.
+- The SCHEMORA large-number display is the equal-weight RRF (`k=60`) review
+  priority normalized by its theoretical three-signal maximum. Candidate order
+  follows this derived priority.
+- The SCHEMORA badge reports whether 3/3, 2/3, or 1/3 of the LLM, vector, and
+  BM25 rank lists contributed. It is not a correctness vote.
 
-No UI score or grade is reported as a calibrated probability. The complete
+No UI score or signal badge is reported as a calibrated probability. The complete
 Korean explanation is in `docs/ui_score_guide_ko.md`.

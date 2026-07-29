@@ -17,7 +17,8 @@ class DataTests(unittest.TestCase):
         case = catalog["cases"][0]
         self.assertEqual(case["id"], "reference-demo-reconstruction")
         self.assertEqual(
-            case["predictions"], "outputs/reference_demo/predictions.csv"
+            case["predictions"],
+            "outputs/reference_demo/predictions_global_priority.csv",
         )
 
     def test_observed_data_and_baseline_are_bounded(self) -> None:
@@ -81,9 +82,9 @@ class DataTests(unittest.TestCase):
 
     def test_ui_score_semantics_are_documented(self) -> None:
         guide = (ROOT / "docs" / "ui_score_guide_ko.md").read_text()
-        self.assertIn("round(vector_score × 100)", guide)
+        self.assertIn("동일 가중치 RRF(`k=60`)", guide)
         self.assertIn("높음 `≥90`", guide)
-        self.assertIn("확률·정확도·신뢰도가 아님", guide)
+        self.assertIn("정확도·관련도·신뢰확률이 아님", guide)
 
     def test_global_priority_results_are_complete_and_sorted(self) -> None:
         with (OUTPUT / "predictions_global_priority.csv").open(newline="") as handle:

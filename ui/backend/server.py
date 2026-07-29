@@ -321,8 +321,8 @@ def main() -> None:
         if predictions is not None and predictions.exists():
             item["status"] = "schemora-results-loaded"
             item["result_note"] = (
-                "실제 SCHEMORA 변환 CSV가 로드되었습니다. 관찰 기준선 점수와 "
-                "SCHEMORA 검색 점수는 서로 다른 척도로 표시됩니다."
+                "실제 SCHEMORA 후보 135건을 RRF 전역 검토 우선순위로 "
+                "배열했습니다. RRF 값은 정확도나 신뢰확률이 아닙니다."
             )
     Handler.catalog = catalog
     Handler.stores = stores

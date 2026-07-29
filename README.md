@@ -60,8 +60,8 @@ python3 ui/backend/server.py
 ### SCHEMORA 결과
 
 실제 SCHEMORA 후보 135건을 검색·필터링하고 승인 또는 무시할 수 있다.
-표시 점수는 vector score의 가독성용 변환이며 최종 후보 순서는 LLM
-랭킹을 따른다.
+화면 순서는 LLM·Vector·BM25 질의 내 순위를 결합한 RRF 전역 검토
+우선순위를 따르며, 표시값은 정확도나 신뢰확률이 아니다.
 
 [![SCHEMORA 결과 UI](docs/assets/schemora-ui-actual-results.jpg)](docs/assets/schemora-ui-actual-results.jpg)
 

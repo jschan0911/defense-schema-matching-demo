@@ -19,7 +19,10 @@ class StoreTests(unittest.TestCase):
     def test_review_state_persists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             store = server.Store(
-                ROOT / "outputs" / "reference_demo" / "predictions.csv",
+                ROOT
+                / "outputs"
+                / "reference_demo"
+                / "predictions_global_priority.csv",
                 ROOT
                 / "cases"
                 / "reference_demo_reconstruction"
@@ -28,6 +31,8 @@ class StoreTests(unittest.TestCase):
             )
             rows, total = store.candidates("", "all", 100, 0)
             self.assertEqual(total, 135)
+            self.assertEqual(rows[0]["display_order"], "1")
+            self.assertEqual(rows[0]["global_priority_rank"], "1")
             self.assertEqual(store.summary()["pending"], 135)
             store.review([rows[0]["id"]], "approved")
             self.assertEqual(store.summary()["approved"], 1)
