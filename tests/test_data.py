@@ -85,6 +85,40 @@ class DataTests(unittest.TestCase):
         self.assertIn("높음 `≥90`", guide)
         self.assertIn("확률·정확도·신뢰도가 아님", guide)
 
+    def test_ranked_results_are_complete_and_sorted(self) -> None:
+        with (OUTPUT / "predictions_by_rank.csv").open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        keys = [
+            (
+                int(row["rank"]),
+                row["source_table"],
+                row["source_column"],
+                row["target_object_type"],
+                row["target_property"],
+            )
+            for row in rows
+        ]
+        self.assertEqual(len(rows), 135)
+        self.assertEqual(keys, sorted(keys))
+
+        report = (ROOT / "docs" / "schemora_ranked_results.md").read_text()
+        self.assertIn("후보 **135건 전체**", report)
+        self.assertEqual(
+            sum(line.startswith("| 1 | `") for line in report.splitlines()),
+            28,
+        )
+
+    def test_readme_embeds_both_ui_screenshots(self) -> None:
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn(
+            "![Reference 관찰값 UI](docs/assets/reference-ui-observed-values.jpg)",
+            readme,
+        )
+        self.assertIn(
+            "![SCHEMORA 결과 UI](docs/assets/schemora-ui-actual-results.jpg)",
+            readme,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

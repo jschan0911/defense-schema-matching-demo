@@ -50,8 +50,35 @@ python3 ui/backend/server.py
 
 ## UI 캡처
 
-- [`Reference · 관찰값`](docs/assets/reference-ui-observed-values.jpg)
-- [`SCHEMORA 결과`](docs/assets/schemora-ui-actual-results.jpg)
+### Reference · 관찰값
+
+원 데모 화면에서 완전히 확인되는 후보 9건을 읽기 전용으로 표시한다.
+화면의 숫자와 등급은 원 시스템의 관찰값이며 확률로 해석하지 않는다.
+
+[![Reference 관찰값 UI](docs/assets/reference-ui-observed-values.jpg)](docs/assets/reference-ui-observed-values.jpg)
+
+### SCHEMORA 결과
+
+실제 SCHEMORA 후보 135건을 검색·필터링하고 승인 또는 무시할 수 있다.
+표시 점수는 vector score의 가독성용 변환이며 최종 후보 순서는 LLM
+랭킹을 따른다.
+
+[![SCHEMORA 결과 UI](docs/assets/schemora-ui-actual-results.jpg)](docs/assets/schemora-ui-actual-results.jpg)
+
+## 전체 매칭 결과
+
+실제 실행에서 반환된 후보는 총 135건이다. 원본 실행 순서와 provenance는
+[`predictions.csv`](outputs/reference_demo/predictions.csv)에 보존하고,
+열람용 결과는 `rank` 오름차순으로 정렬했다.
+
+- [GitHub에서 보는 전체 135건 순위표](docs/schemora_ranked_results.md)
+- [순위별 정렬 CSV](outputs/reference_demo/predictions_by_rank.csv)
+
+정렬 결과는 다음 명령으로 다시 생성할 수 있다.
+
+```bash
+python3 experiments/render_ranked_results.py
+```
 
 ## 주요 문서
 
