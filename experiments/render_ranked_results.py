@@ -34,7 +34,7 @@ def main() -> None:
         raise SystemExit(f"No prediction rows found in {SOURCE}")
 
     with SORTED_CSV.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
