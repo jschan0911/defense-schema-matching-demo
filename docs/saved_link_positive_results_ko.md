@@ -50,6 +50,8 @@ SCHEMORA의 Vector/BM25 값과 원 데모의 95·47 등의 점수는 의미가 �
 `3/3`, `2/3`, `1/3` 배지는 RRF 계산에 기여한 신호 수다. 표시 점수와
 배지는 성능 지표나 calibration된 confidence가 아니다. 원 vector,
 BM25, 각 질의 내 순위는 후보의 `추천 근거`에서 별도로 확인한다.
+SCHEMORA는 필드 매핑 후보만 반환하므로 링크 이름과
+`relatedTo`·`symmetric` 타입은 `미지정`으로 두고 평가하지 않는다.
 
 ## Positive-only recovery
 

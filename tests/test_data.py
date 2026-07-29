@@ -119,6 +119,12 @@ class DataTests(unittest.TestCase):
             readme,
         )
 
+    def test_schemora_ui_does_not_infer_link_names(self) -> None:
+        app = (ROOT / "ui" / "frontend" / "app.js").read_text()
+        self.assertIn('"링크명 미지정"', app)
+        self.assertNotIn('"동일 의미"', app)
+        self.assertNotIn("`${source} 연결`", app)
+
 
 if __name__ == "__main__":
     unittest.main()

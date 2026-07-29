@@ -25,6 +25,8 @@ Open <http://127.0.0.1:8765>.
   three-signal maximum. It is not probability or calibrated confidence.
 - Raw vector/BM25 scores and all three query-local ranks remain visible in the
   evidence detail.
+- SCHEMORA rows display `링크명 미지정`; the UI does not infer a link name or
+  `relatedTo`/`symmetric` type from field names.
 
 ## Signal agreement
 

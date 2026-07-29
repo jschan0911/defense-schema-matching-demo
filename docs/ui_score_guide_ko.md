@@ -24,6 +24,7 @@ UI는 `Reference · 관찰값`과 `SCHEMORA 결과`를 서로 다른 근거와 �
 | 후보 순서 | RRF 우선순위 내림차순, 동점은 Source·Target 이름순의 고정 표시 순서 | 동점 표시 순서는 의미론적 서열이 아님 |
 | Vector | embedding retrieval에서 동일 후보가 받은 최대 score | 원 데모 점수와 직접 비교 불가 |
 | BM25 | lexical retrieval에서 동일 후보가 받은 최대 score | Vector와 단위가 다르며 서로 더하거나 확률처럼 해석하지 않음 |
+| 링크 이름·타입 | `링크명 미지정`으로 표시 | SCHEMORA 산출물이 필드 매핑 후보만 포함하므로 이름이나 `relatedTo`·`symmetric` 타입을 추론하지 않음 |
 | 추천 근거 | 실행 단계와 최종 순위를 설명하는 결정론적 템플릿 | 별도의 LLM 판단이나 원 데모 설명 재현이 아님 |
 
 ### 신호 합의

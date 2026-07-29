@@ -137,6 +137,8 @@ The two UI surfaces use intentionally different display rules:
   follows this derived priority.
 - The SCHEMORA badge reports whether 3/3, 2/3, or 1/3 of the LLM, vector, and
   BM25 rank lists contributed. It is not a correctness vote.
+- SCHEMORA rows show `링크명 미지정`; field names are not used to invent a
+  linked term or `relatedTo`/`symmetric` type.
 
 No UI score or signal badge is reported as a calibrated probability. The complete
 Korean explanation is in `docs/ui_score_guide_ko.md`.

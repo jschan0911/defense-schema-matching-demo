@@ -91,7 +91,7 @@ function renderScoreGuide() {
     : [
       "후보는 LLM·Vector·BM25의 질의 내 순위를 동일 가중치 RRF(k=60)로 결합한 점수 내림차순입니다.",
       "Vector와 BM25 원점수는 단위가 달라 직접 합산하지 않습니다. 검색 결과에 없는 신호의 RRF 기여는 0입니다.",
-      "RRF 값은 정확도나 신뢰확률이 아닙니다. 같은 순위 패턴은 공동순위이며, 3/3·2/3 표시는 기여한 신호 수입니다.",
+      "RRF 값은 정확도나 신뢰확률이 아닙니다. 같은 순위 패턴은 공동순위이며, 링크 이름·타입은 예측하지 않습니다.",
     ];
   $("#score-guide-points").replaceChildren(
     ...points.map((text) => {
@@ -137,10 +137,7 @@ function scoreFor(row) {
 }
 
 function linkLabel(row) {
-  if (row.link_name) return row.link_name;
-  const source = row.source_column.replaceAll("_", " ");
-  const target = row.target_property.replaceAll("_", " ");
-  return source === target ? "동일 의미" : `${source} 연결`;
+  return row.reference && row.link_name ? row.link_name : "링크명 미지정";
 }
 
 function makeRow(row) {
@@ -155,6 +152,9 @@ function makeRow(row) {
   element.querySelector(".to strong").textContent = row.target_property;
   element.querySelector(".to span").textContent = row.target_object_type;
   element.querySelector(".link-name strong").textContent = linkLabel(row);
+  element.querySelector(".link-name span").textContent = row.reference
+    ? "↗ 관찰 링크"
+    : "↗ 필드 후보";
   const grade = element.querySelector(".grade");
   grade.textContent = row.reference
     ? row.reference_confidence
